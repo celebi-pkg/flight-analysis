@@ -1,0 +1,39 @@
+,Leave Date,Return Date,Depart Time (Leg 1),Arrival Time (Leg 1),Airline(s),Travel Time,Origin,Destination,Num Stops,Layover Time,Stop Location,CO2 Emission,Emission Avg Diff (%),Price ($),Trip Type,Access Date
+0,2023-05-15,2023-06-15,10:00 PM,11:46 PM,AmericanOperated by Republic Airways as American Eagle,1 hr 46 min,LGA,RDU,0,,,93.0,0,148.0,round trip,2023-04-05
+1,2023-05-15,2023-06-15,8:37 AM,10:25 AM,JetBlueAmerican,1 hr 48 min,JFK,RDU,0,,,99.0,11,158.0,round trip,2023-04-05
+2,2023-05-15,2023-06-15,6:23 AM,7:58 AM,United,1 hr 35 min,EWR,RDU,0,,,89.0,0,168.0,round trip,2023-04-05
+3,2023-05-15,2023-06-15,10:00 AM,1:12 PM,AmericanOperated by Republic Airways as American Eagle,3 hr 12 min,LGA,RDU,1,33 , DCA,146.0,64,158.0,round trip,2023-04-05
+4,2023-05-15,2023-06-15,4:00 PM,7:28 PM,American,3 hr 28 min,LGA,RDU,1,58 , DCA,139.0,56,158.0,round trip,2023-04-05
+5,2023-05-15,2023-06-15,5:35 PM,7:28 PM,JetBlueAmerican,1 hr 53 min,JFK,RDU,0,,,99.0,11,158.0,round trip,2023-04-05
+6,2023-05-15,2023-06-15,2:57 PM,4:41 PM,United,1 hr 44 min,EWR,RDU,0,,,84.0,-6,168.0,round trip,2023-04-05
+7,2023-05-15,2023-06-15,7:29 PM,9:20 PM,United,1 hr 51 min,EWR,RDU,0,,,89.0,0,168.0,round trip,2023-04-05
+8,2023-05-15,2023-06-15,9:56 PM,11:44 PM,United,1 hr 48 min,EWR,RDU,0,,,69.0,-22,168.0,round trip,2023-04-05
+9,2023-05-15,2023-06-15,9:59 PM,11:44 PM,JetBlueAmerican,1 hr 45 min,JFK,RDU,0,,,99.0,11,168.0,round trip,2023-04-05
+10,2023-05-15,2023-06-15,8:20 AM,10:04 AM,AmericanOperated by Republic Airways as American Eagle,1 hr 44 min,LGA,RDU,0,,,93.0,0,173.0,round trip,2023-04-05
+11,2023-05-15,2023-06-15,12:00 PM,1:41 PM,American,1 hr 41 min,LGA,RDU,0,,,89.0,0,173.0,round trip,2023-04-05
+12,2023-05-15,2023-06-15,2:30 PM,4:18 PM,American,1 hr 48 min,LGA,RDU,0,,,89.0,0,173.0,round trip,2023-04-05
+13,2023-05-15,2023-06-15,9:30 PM,11:35 PM,AmericanOperated by Republic Airways as American Eagle,2 hr 5 min,JFK,RDU,0,,,85.0,0,188.0,round trip,2023-04-05
+14,2023-05-15,2023-06-15,4:25 PM,6:09 PM,American,1 hr 44 min,LGA,RDU,0,,,89.0,0,198.0,round trip,2023-04-05
+15,2023-05-15,2023-06-15,1:49 PM,3:33 PM,UnitedOperated by Republic Airways DBA United Express,1 hr 44 min,EWR,RDU,0,,,99.0,11,206.0,round trip,2023-04-05
+16,2023-05-15,2023-06-15,3:45 PM,5:42 PM,AmericanOperated by Republic Airways as American Eagle,1 hr 57 min,JFK,RDU,0,,,85.0,0,208.0,round trip,2023-04-05
+17,2023-05-15,2023-06-15,6:29 PM,8:36 PM,AmericanOperated by Republic Airways as American Eagle,2 hr 7 min,JFK,RDU,0,,,85.0,0,208.0,round trip,2023-04-05
+18,2023-05-15,2023-06-15,9:33 AM,11:20 AM,United,1 hr 47 min,EWR,RDU,0,,,89.0,0,213.0,round trip,2023-04-05
+19,2023-05-15,2023-06-15,9:59 AM,11:55 AM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 56 min,EWR,RDU,0,,,88.0,0,218.0,round trip,2023-04-05
+20,2023-05-15,2023-06-15,10:40 AM,12:39 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 59 min,LGA,RDU,0,,,92.0,0,218.0,round trip,2023-04-05
+21,2023-05-15,2023-06-15,12:45 PM,2:42 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 57 min,LGA,RDU,0,,,92.0,0,218.0,round trip,2023-04-05
+22,2023-05-15,2023-06-15,7:30 PM,9:24 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 54 min,EWR,RDU,0,,,95.0,7,218.0,round trip,2023-04-05
+23,2023-05-15,2023-06-15,8:56 PM,10:50 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 54 min,LGA,RDU,0,,,92.0,0,218.0,round trip,2023-04-05
+24,2023-05-15,2023-06-15,7:00 PM,8:42 PM,American,1 hr 42 min,LGA,RDU,0,,,89.0,0,223.0,round trip,2023-04-05
+25,2023-05-15,2023-06-15,12:15 PM,2:04 PM,JetBlueAmerican,1 hr 49 min,JFK,RDU,0,,,99.0,11,233.0,round trip,2023-04-05
+26,2023-05-15,2023-06-15,1:55 PM,3:50 PM,AmericanOperated by Republic Airways as American Eagle,1 hr 55 min,JFK,RDU,0,,,85.0,0,233.0,round trip,2023-04-05
+27,2023-05-15,2023-06-15,2:45 PM,4:32 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 47 min,EWR,RDU,0,,,95.0,7,238.0,round trip,2023-04-05
+28,2023-05-15,2023-06-15,1:59 PM,3:49 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 50 min,LGA,RDU,0,,,99.0,11,243.0,round trip,2023-04-05
+29,2023-05-15,2023-06-15,6:30 AM,8:15 AM,DeltaOperated by Republic Airways Delta Connection,1 hr 45 min,LGA,RDU,0,,,88.0,0,253.0,round trip,2023-04-05
+30,2023-05-15,2023-06-15,10:20 AM,12:16 PM,AmericanOperated by Republic Airways as American Eagle,1 hr 56 min,JFK,RDU,0,,,85.0,0,263.0,round trip,2023-04-05
+31,2023-05-15,2023-06-15,5:00 PM,7:05 PM,DeltaOperated by Endeavor Air DBA Delta Connection,2 hr 5 min,JFK,RDU,0,,,92.0,0,323.0,round trip,2023-04-05
+32,2023-05-15,2023-06-15,8:57 AM,10:50 AM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 53 min,LGA,RDU,0,,,99.0,11,338.0,round trip,2023-04-05
+33,2023-05-15,2023-06-15,12:55 PM,2:45 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 50 min,JFK,RDU,0,,,92.0,0,348.0,round trip,2023-04-05
+34,2023-05-15,2023-06-15,4:30 PM,6:28 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 58 min,LGA,RDU,0,,,92.0,0,358.0,round trip,2023-04-05
+35,2023-05-15,2023-06-15,4:30 PM,6:22 PM,UnitedOperated by Republic Airways DBA United Express,1 hr 52 min,EWR,RDU,0,,,99.0,11,383.0,round trip,2023-04-05
+36,2023-05-15,2023-06-15,9:00 AM,10:53 AM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 53 min,JFK,RDU,0,,,92.0,0,428.0,round trip,2023-04-05
+37,2023-05-15,2023-06-15,2:55 PM,4:50 PM,DeltaOperated by Endeavor Air DBA Delta Connection,1 hr 55 min,JFK,RDU,0,,,92.0,0,453.0,round trip,2023-04-05

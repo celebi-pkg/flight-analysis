@@ -1,0 +1,19 @@
+,Leave Date,Return Date,Depart Time (Leg 1),Arrival Time (Leg 1),Airline(s),Travel Time,Origin,Destination,Num Stops,Layover Time,Stop Location,CO2 Emission,Emission Avg Diff (%),Price ($),Trip Type,Access Date
+0,2023-07-15,2023-07-20,5:35 PM,10:45 PM,LOT,6 hr 10 min,IST,CDG,1,1 hr 15 , WAW,260.0,49,311.0,round trip,2023-04-05
+1,2023-07-15,2023-07-20,4:55 PM,8:55 PM,Air Serbia,5 hr,IST,CDG,1,45 , BEG,202.0,16,381.0,round trip,2023-04-05
+2,2023-07-15,2023-07-20,1:40 PM,4:20 PM,Pegasus,3 hr 40 min,SAW,CDG,0,,,141.0,-19,421.0,round trip,2023-04-05
+3,2023-07-15,2023-07-20,9:00 AM,11:35 AM,Turkish Airlines,3 hr 35 min,SAW,CDG,0,,,136.0,-22,466.0,round trip,2023-04-05
+4,2023-07-15,2023-07-20,7:10 AM,6:55 PM,LOT,12 hr 45 min,IST,CDG,1,7 hr 50 , WAW,221.0,27,311.0,round trip,2023-04-05
+5,2023-07-15,2023-07-20,2:00 PM,9:25 PM,Lufthansa,8 hr 25 min,IST,CDG,1,4 hr FRA,[' FRA'],187.0,7,400.0,round trip,2023-04-05
+6,2023-07-15,2023-07-20,5:00 AM,9:25 AM,Air Serbia,5 hr 25 min,IST,CDG,1,1 hr 10 , BEG,202.0,16,411.0,round trip,2023-04-05
+7,2023-07-15,2023-07-20,7:55 PM,10:40 PM,Transavia,3 hr 45 min,IST,ORY,0,,,143.0,-18,418.0,round trip,2023-04-05
+8,2023-07-15,2023-07-20,10:05 AM,12:45 PM,Turkish Airlines,3 hr 40 min,IST,CDG,0,,,157.0,-10,449.0,round trip,2023-04-05
+9,2023-07-15,2023-07-20,8:20 AM,11:10 AM,Turkish Airlines,3 hr 50 min,IST,CDG,0,,,146.0,-16,472.0,round trip,2023-04-05
+10,2023-07-15,2023-07-20,2:20 PM,5:05 PM,Turkish Airlines,3 hr 45 min,IST,CDG,0,,,146.0,-16,472.0,round trip,2023-04-05
+11,2023-07-15,2023-07-20,3:50 PM,6:30 PM,Turkish Airlines,3 hr 40 min,IST,CDG,0,,,138.0,-21,472.0,round trip,2023-04-05
+12,2023-07-15,2023-07-20,10:30 PM,2:40 PM+1,Air Moldova,17 hr 10 min,IST,BVA,1,12 hr 45 , KIV,205.0,18,473.0,round trip,2023-04-05
+13,2023-07-15,2023-07-20,10:35 AM,1:15 PM,Pegasus,3 hr 40 min,SAW,CDG,0,,,141.0,-19,479.0,round trip,2023-04-05
+14,2023-07-15,2023-07-20,2:10 PM,4:45 PM,Turkish Airlines,3 hr 35 min,SAW,CDG,0,,,153.0,-12,491.0,round trip,2023-04-05
+15,2023-07-15,2023-07-20,7:00 AM,9:40 AM,Turkish Airlines,3 hr 40 min,IST,CDG,0,,,157.0,-10,494.0,round trip,2023-04-05
+16,2023-07-15,2023-07-20,7:20 PM,10:05 PM,Turkish Airlines,3 hr 45 min,IST,CDG,0,,,175.0,0,494.0,round trip,2023-04-05
+17,2023-07-15,2023-07-20,12:35 PM,3:20 PM,Turkish Airlines,3 hr 45 min,IST,CDG,0,,,146.0,-16,534.0,round trip,2023-04-05
