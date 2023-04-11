@@ -1,8 +1,5 @@
 name: Publish to PyPI.org
-#on: workflow_dispatch
-on:
-  release:
-    types: [published]
+on: workflow_dispatch
 jobs:
   pypi:
     runs-on: ubuntu-latest
