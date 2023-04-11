@@ -1,4 +1,4 @@
-[![kcelebi](https://circleci.com/gh/kcelebi/flight-analysis.svg?style=svg)](https://circleci.com/gh/kcelebi/flight-analysis)
+[![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Live on PyPI](https://img.shields.io/badge/PyPI-1.0.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
 
