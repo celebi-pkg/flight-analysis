@@ -65,7 +65,7 @@ class _CacheControl:
 	def disconnect_db(self, conn):
 		conn.close()
 
-	def create_table()
+	def create_table():
 		...
 
 

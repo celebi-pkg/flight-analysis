@@ -19,8 +19,8 @@ os.system('rm tests/test_data/LGA-RDU.csv')
 os.system('rm tests/test_data/CDG-IST.csv')
 os.system('rm -rf tests/test_data/.access')
 
-CacheControl('tests/test_data/', res1)
-CacheControl('tests/test_data/', res2)
+CacheControl('tests/test_data/', res1, False)
+CacheControl('tests/test_data/', res2, False)
 
 def test_0():
 	assert func_0(), "Test 0 Failed"
