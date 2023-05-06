@@ -9,6 +9,7 @@ from datetime import date, datetime, timedelta
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from flight import *
 
 __all__ = ['Scrape', '_Scrape']
 
@@ -23,12 +24,14 @@ class _Scrape:
 
 	def __call__(self, *args):
 		if len(args) == 4:
+			# base call protocol
 			self._set_properties(*args)
 			self._data = self._scrape_data()
 			obj = self.clone()
 			obj.data = self._data
 			return obj
 		else:
+			# data file being added to new scrape
 			self._set_properties(*(args[:-1]))
 			obj = self.clone()
 			obj.data = args[-1]
@@ -125,6 +128,19 @@ class _Scrape:
 	def _get_results(self, url):
 		results = _Scrape._make_url_request(url)
 
+		res2 = [x.encode("ascii", "ignore").decode().strip() for x in res1]
+
+		start = res2.index("Sort by:")+1
+		mid_start = res2.index("Price insights")
+		mid_end = res2.index("Other departing flights")+1
+		end  = [i for i, x in enumerate(res2) if x.endswith('more flights')][0]
+
+		res3 = res2[start:mid_start] + res2[mid_end:end]
+
+		matches = [i for i, x in enumerate(res3) if x.endswith('PM') or x.endswith('AM')][::2]
+
+		flights = [Flight(self._date_leave, self._date_return, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
+
 		flight_info = _Scrape._get_info(results)
 		partition = _Scrape._partition_info(flight_info)
 
@@ -147,6 +163,7 @@ class _Scrape:
 	@staticmethod
 	def _make_url_request(url):
 		driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
+		driver.maximize_window()
 		driver.get(url)
 
 		# Waiting and initial XPATH cleaning
@@ -162,51 +179,18 @@ class _Scrape:
 		return driver.find_element(by = By.XPATH, value = '//body[@id = "yDmH0d"]').text.split('\n')
 
 	@staticmethod
-	def _get_info(result):
-		info = []
-		collect = False
-		for r in result:
-			if 'more flights' in r:
-				collect = False
+	def _get_info(results):
+		start_idx = results.index('Sort by:') + 1
+		end_idx = [i for i in range(len(results)-1, start_idx, -1) if "more flights" in results[i]][0]
 
-			if collect and 'price' not in r.lower() and 'prices' not in r.lower() and 'other' not in r.lower() and ' – ' not in r.lower():
-				info += [r]
-
-			if r == 'Sort by:':
-				collect = True
-
-		return info
+		return results[start_idx : end_idx]
 
 	@staticmethod
 	def _partition_info(info):
-		i, grouped = 0, []
-		while i < len(info) - 1:
-			j = i + 2
-			end = -1
-			while j < len(info):
-				if _Scrape._end_condition(info[j]):
-					end = j
-					break
-				j += 1
+		sep_idx = [i-1 for i in range(len(info)) if info[i].strip() == chr(8211)]
+		groups = [ info[sep_idx[i] : sep_idx[i+1]] for i in range(len(sep_idx)-1)] + [info[sep_idx[-1]:]]
 
-			if end == -1:
-				break
-			grouped += [info[i:end]]
-			i = end
-
-		return grouped
-
-	@staticmethod
-	def _end_condition(x):
-		if len(x) < 2:
-			return False
-
-		if x[-2] == "+":
-			x = x[:-2]
-
-		if x[-2:] == 'AM' or x[-2:] == 'PM':
-			return True
-		return False
+		... #CONTINUE IN JUPUYTER
 
 	@staticmethod
 	def _parse_columns(grouped, date_leave, date_return):

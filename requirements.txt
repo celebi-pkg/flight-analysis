@@ -1,3 +1,4 @@
+re
 tqdm
 numpy
 pandas
