@@ -9,6 +9,9 @@ from datetime import date, datetime, timedelta
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+
+import sys
+sys.path.append('src/google_flight_analysis')
 from flight import *
 
 __all__ = ['Scrape', '_Scrape']
@@ -179,77 +182,7 @@ class _Scrape:
 		return driver.find_element(by = By.XPATH, value = '//body[@id = "yDmH0d"]').text.split('\n')
 
 	@staticmethod
-	def _get_info(results):
-		start_idx = results.index('Sort by:') + 1
-		end_idx = [i for i in range(len(results)-1, start_idx, -1) if "more flights" in results[i]][0]
-
-		return results[start_idx : end_idx]
-
-	@staticmethod
-	def _partition_info(info):
-		sep_idx = [i-1 for i in range(len(info)) if info[i].strip() == chr(8211)]
-		groups = [ info[sep_idx[i] : sep_idx[i+1]] for i in range(len(sep_idx)-1)] + [info[sep_idx[-1]:]]
-
-		... #CONTINUE IN JUPUYTER
-
-	@staticmethod
 	def _parse_columns(grouped, date_leave, date_return):
-		# Instantiate empty column arrays
-		depart_time = []
-		arrival_time = []
-		airline = []
-		travel_time = []
-		origin = []
-		dest = []
-		stops = []
-		stop_time = []
-		stop_location = []
-		co2_emission = []
-		emission = []
-		price = []
-		trip_type = []
-		access_date = [date.today().strftime('%Y-%m-%d')]*len(grouped)
-
-		# For each "flight"
-		for g in grouped:
-			i_diff = 0 # int that checks if we need to jump ahead based on some conditions
-
-			# Get departure and arrival times
-			depart_time += [g[0]]
-			arrival_time += [g[1]]
-
-			# When this string shows up we jump ahead an index
-			i_diff += 1 if 'Separate tickets booked together' in g[2] else 0
-
-			# Add airline, travel time, origin, and dest
-			airline += [g[2 + i_diff]]
-			travel_time += [g[3 + i_diff]]
-			origin += [g[4 + i_diff].split('–')[0]]
-			dest += [g[4 + i_diff].split('–')[1]]
-
-			# Grab the number of stops by splitting string
-			num_stops = 0 if 'Nonstop' in g[5 + i_diff] else int(g[5 + i_diff].split('stop')[0])
-			stops += [num_stops]
-
-			# Add stop time/location given whether its nonstop flight or not
-			stop_time += [None if num_stops == 0 else (g[6 + i_diff].split('min')[0] if num_stops == 1 else None)]
-			stop_location += [None if num_stops == 0 else (g[6 + i_diff].split('min')[1] if num_stops == 1 and 'min' in g[6 + i_diff] else [g[6 + i_diff].split('hr')[1] if 'hr' in g[6 + i_diff] and num_stops == 1 else g[6 + i_diff]])]
-
-			# Jump ahead an index if flight isn't nonstop to accomodate for stop_time, stop_location
-			i_diff += 0 if num_stops == 0 else 1
-
-			# If Co2 emission not listed then we skip, else we add
-			if g[6 + i_diff] != '–':
-				co2_emission += [float(g[6 + i_diff].replace(',','').split(' kg')[0])]
-				emission += [0 if g[7 + i_diff] == 'Avg emissions' else int(g[7 + i_diff].split('%')[0])]
-
-				price += [float(g[8 + i_diff][1:].replace(',',''))]
-				trip_type += [g[9 + i_diff]]
-			else:
-				co2_emission += [None]
-				emission += [None]
-				price += [float(g[7 + i_diff][1:].replace(',',''))]
-				trip_type += [g[8 + i_diff]]
 
 
 		return pd.DataFrame({
