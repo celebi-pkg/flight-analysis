@@ -13,6 +13,7 @@ class Flight:
 		self._origin = None
 		self._dest = None
 		self._date = dl
+		self._dow = dl.strf_time('%Y-%m-%d').isoweekday() # day of week
 		self._airline = None
 		self._flight_time = None
 		self._num_stops = None
@@ -22,7 +23,7 @@ class Flight:
 		self._price = None
 		self._trip_type = None #round trip
 		self._time_leave = None
-		self._time_return = None
+		self._time_arrive = None
 
 		self._parse_args(*args)
 
@@ -32,12 +33,40 @@ class Flight:
 	def __str__(self):
 		...
 
+	@property
+	def id(self):
+		return self._id
+
+	@property
+	def origin(self):
+		return self._origin
+
+	@origin.setter
+	def origin(self, x : str) -> None:
+		self._origin = x
+
+	@property
+	def dest(self):
+		return self._dest
+
+	@dest.setter
+	def dest(self, x : str) -> None:
+		self._dest = x
+
+	@property
+	def date(self):
+		return self._date
+
+	@date_leave.setter
+	def date(self, x : str) -> None:
+		self._date = x
+
 
 	def _parse_args(self, args):
 		assert args[0].endswith('AM') or  args[0].endswith('PM'), Flight.assert_error(0)
 		assert args[2].endswith('AM') or  args[2].endswith('PM'), Flight.assert_error(1)
 		self._time_leave = args[0]
-		self._time_return = args[2]
+		self._time_arrive = args[2]
 
 
 		self._airline = args[3].split('Operated')[0]
@@ -77,35 +106,43 @@ class Flight:
 			assert args[10] is not None, Flight.assert_error(10)
 			self._trip_type = args[10]
 
-	@property
-	def id(self):
-		return self._id
+	@staticmethod
+	def dataframe(flights: list[Flight]):
+		data = {
+			'Date': [],
+			'Departure Time': [],
+			'Arrival Time': [],
+			'Airline(s)' : [],
+			'Travel Time' : [],
+			'Origin' : [],
+			'Destination' : [],
+			'Num Stops' : [],
+			'Layover Time' : [],
+			'Stop Location' : [],
+			'CO2 Emission' : [],
+			'Emission Diff (%)' : [],
+			'Price ($)' : [],
+			'Access Date' : []
+		}
 
-	@property
-	def origin(self):
-		return self._origin
+		for flight in flights:
+			data['Date'] += [flight.date]
+			data['Departure Time'] += [flight.time_leave]
+			data['Arrival Time'] += [flight.time_arrive]
+			data['Airline(s)'] += [flight.airline]
+			data['Travel Time'] += [flight.flight_time]
+			data['Origin'] += [flight.origin]
+			data['Destination'] += [flight.dest]
 
-	@origin.setter
-	def origin(self, x : str) -> None:
-		self._origin = x
+			data['Num Stops'] += [flight.num_stops]
+			#data['Layover'] += [flight.stops]
+			#data['Stop Location'] += [flight.date]
+			data['CO2 Emission (kg)'] += [flight.co2]
+			data['Emission Diff (%)'] += [flight.emissions]
+			data['Price ($)'] += [flight.price]
+			data['Access Date'] += [datetime.today()]
 
-	@property
-	def dest(self):
-		return self._dest
 
-	@dest.setter
-	def dest(self, x : str) -> None:
-		self._dest = x
-
-	@property
-	def date(self):
-		return self._date
-
-	@date_leave.setter
-	def date(self, x : str) -> None:
-		self._date = x
-
-	
 	@staticmethod
 	def assert_error(x):
 		return [

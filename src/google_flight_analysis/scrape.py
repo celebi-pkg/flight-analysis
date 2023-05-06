@@ -130,8 +130,11 @@ class _Scrape:
 
 	def _get_results(self, url):
 		results = _Scrape._make_url_request(url)
+		flights = _Scrape._clean_results(results)
+		return Flight.dataframe(flights)
 
-		res2 = [x.encode("ascii", "ignore").decode().strip() for x in res1]
+	def _clean_results(result):
+		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
 
 		start = res2.index("Sort by:")+1
 		mid_start = res2.index("Price insights")
@@ -142,12 +145,9 @@ class _Scrape:
 
 		matches = [i for i, x in enumerate(res3) if x.endswith('PM') or x.endswith('AM')][::2]
 
-		flights = [Flight(self._date_leave, self._date_return, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
+		flights = [Flight(self._date_leave res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
-		flight_info = _Scrape._get_info(results)
-		partition = _Scrape._partition_info(flight_info)
-
-		return _Scrape._parse_columns(partition, self._date_leave, self._date_return)
+		return flights
 
 	@staticmethod
 	def _get_driver():
@@ -180,28 +180,5 @@ class _Scrape:
 	@staticmethod
 	def _get_flight_elements(driver):
 		return driver.find_element(by = By.XPATH, value = '//body[@id = "yDmH0d"]').text.split('\n')
-
-	@staticmethod
-	def _parse_columns(grouped, date_leave, date_return):
-
-
-		return pd.DataFrame({
-			'Leave Date' : [date_leave]*len(grouped),
-			'Return Date' : [date_return]*len(grouped),
-			'Depart Time (Leg 1)' : depart_time,
-			'Arrival Time (Leg 1)' : arrival_time,
-			'Airline(s)' : airline,
-			'Travel Time' : travel_time,
-			'Origin' : origin,
-			'Destination' : dest,
-			'Num Stops' : stops,
-			'Layover Time' : stop_time,
-			'Stop Location' : stop_location,
-			'CO2 Emission' : co2_emission,
-			'Emission Avg Diff (%)' : emission,
-			'Price ($)' : price,
-			'Trip Type' : trip_type,
-			'Access Date' : access_date
-		})
 
 Scrape = _Scrape()
