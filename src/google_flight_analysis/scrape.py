@@ -130,12 +130,15 @@ class _Scrape:
 		Scrape the object
 	'''
 	def _scrape_data(self):
-		leave_result = self._get_results(self._make_url(self._date_leave, leave = True))
+		driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
+		driver.maximize_window()
+		leave_result = self._get_results(self._make_url(self._date_leave, leave = True), driver)
 		if self._date_return is not None:
-			return_result = self._get_results(self._make_url(self._date_return, leave = False))
-
+			return_result = self._get_results(self._make_url(self._date_return, leave = False), driver)
+			driver.quit()
 			return pd.concat([leave_result, return_result])
 
+		driver.quit()
 		return leave_result
 
 
@@ -153,10 +156,10 @@ class _Scrape:
 				date = date
 			)
 
-	def _get_results(self, url):
+	def _get_results(self, url, driver):
 		results = None
 		try:
-			results = _Scrape._make_url_request(url)
+			results = _Scrape._make_url_request(url, driver)
 		except TimeoutException:
 			print(
 				'''TimeoutException, try again and check your internet connection!\n
@@ -205,16 +208,16 @@ class _Scrape:
 			)
 
 	@staticmethod
-	def _make_url_request(url):
-		driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
-		driver.maximize_window()
+	def _make_url_request(url, driver):
+		#driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
+		#driver.maximize_window()
 		driver.get(url)
 
 		# Waiting and initial XPATH cleaning
 		WebDriverWait(driver, timeout = 10).until(lambda d: len(_Scrape._get_flight_elements(d)) > 100)
 		results = _Scrape._get_flight_elements(driver)
 
-		driver.quit()
+		#driver.quit()
 
 		return results
 
