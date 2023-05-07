@@ -130,36 +130,39 @@ class _Scrape:
 		Scrape the object
 	'''
 	def _scrape_data(self):
-		url = self._make_url()
-		return self._get_results(url)
+		leave_result = self._get_results(self._make_url(self._date_leave, leave = True))
+		if self._date_return is not None:
+			return_result = self._get_results(self._make_url(self._date_return, leave = False))
+
+			return pd.concat([leave_result, return_result])
+
+		return leave_result
 
 
-	def _make_url(self):
-		if self._date_return is None:
-			return 'https://www.google.com/travel/flights?q=Flights%20to%20{dest}%20from%20{org}%20on%20{dl}%20oneway'.format(
+	def _make_url(self, date, leave = True):
+		if leave:
+			return 'https://www.google.com/travel/flights?q=Flights%20to%20{dest}%20from%20{org}%20on%20{date}%20oneway'.format(
 				dest = self._dest,
 				org = self._origin,
-				dl = self._date_leave
+				date = date
 			)
-
 		else:
-			return 'https://www.google.com/travel/flights?q=Flights%20to%20{dest}%20from%20{org}%20on%20{dl}%20through%20{dr}'.format(
+			return 'https://www.google.com/travel/flights?q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
 				dest = self._dest,
 				org = self._origin,
-				dl = self._date_leave,
-				dr = self._date_return
+				date = date
 			)
 
 	def _get_results(self, url):
+		results = None
 		try:
 			results = _Scrape._make_url_request(url)
 		except TimeoutException:
 			print(
-				'''
-				TimeoutException, try again and check your internet connection!\n
-				Also possible that no flights exist for your query :(
-				'''
+				'''TimeoutException, try again and check your internet connection!\n
+				Also possible that no flights exist for your query :('''.replace('\t','')
 			)
+			return -1
 
 		flights = self._clean_results(results)
 		return Flight.dataframe(flights)
@@ -170,6 +173,7 @@ class _Scrape:
 
 		start = res2.index("Sort by:")+1
 		mid_start = res2.index("Price insights")
+		mid_end = -1
 		try:
 		    mid_end = res2.index("Other departing flights")+1
 		except:
