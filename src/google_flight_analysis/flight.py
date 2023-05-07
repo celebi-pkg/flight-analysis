@@ -17,7 +17,7 @@ class Flight:
 		self._airline = None
 		self._flight_time = None
 		self._num_stops = None
-		self._stops = []
+		self._stops = None
 		self._co2 = None
 		self._emissions = None
 		self._price = None
@@ -120,9 +120,6 @@ class Flight:
 			# num stops
 			self._num_stops = 0 if arg == 'Nonstop' else int(arg.split()[0])
 
-			if self._num_stops > 0:
-				self._stops
-
 		elif arg.endswith('CO2') and self._co2 is None:
 			# co2
 			self._co2 = int(arg.split()[0])
@@ -137,6 +134,10 @@ class Flight:
 			# origin/dest
 			self._origin = arg[:3]
 			self._dest = arg[3:]
+		elif ('hr' in arg and arg[-3:].isupper()) or (len(arg.split(', ')) > 1 and arg.isupper()):
+			# 1 stop + time at stop
+			# or multiple stops
+			self._stops = arg
 		else:
 			self._trash += [arg]
 			# airline and other stuff idk
@@ -208,7 +209,7 @@ class Flight:
 			'Origin' : [],
 			'Destination' : [],
 			'Num Stops' : [],
-			#'Layover Time' : [],
+			'Layover' : [],
 			#'Stop Location' : [],
 			'CO2 Emission (kg)' : [],
 			'Emission Diff (%)' : [],
@@ -226,7 +227,7 @@ class Flight:
 			data['Destination'] += [flight.dest]
 
 			data['Num Stops'] += [flight.num_stops]
-			#data['Layover'] += [flight.stops]
+			data['Layover'] += [flight.stops]
 			#data['Stop Location'] += [flight.stops]
 			data['CO2 Emission (kg)'] += [flight.co2]
 			data['Emission Diff (%)'] += [flight.emissions]
