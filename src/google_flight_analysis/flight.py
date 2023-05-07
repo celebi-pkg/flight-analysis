@@ -13,7 +13,7 @@ class Flight:
 		self._origin = None
 		self._dest = None
 		self._date = dl
-		self._dow = dl.strf_time('%Y-%m-%d').isoweekday() # day of week
+		self._dow = datetime.strptime(dl, '%Y-%m-%d').isoweekday() # day of week
 		self._airline = None
 		self._flight_time = None
 		self._num_stops = None
@@ -21,7 +21,6 @@ class Flight:
 		self._co2 = None
 		self._emissions = None
 		self._price = None
-		self._trip_type = None #round trip
 		self._time_leave = None
 		self._time_arrive = None
 
@@ -57,17 +56,62 @@ class Flight:
 	def date(self):
 		return self._date
 
-	@date_leave.setter
+	@date.setter
 	def date(self, x : str) -> None:
 		self._date = x
+
+	@property
+	def dow(self):
+		return self._dow
+
+	@property
+	def airline(self):
+		return self._airline
+
+	@property
+	def flight_time(self):
+		return self._flight_time
+
+	@property
+	def num_stops(self):
+		return self._num_stops
+
+	@property
+	def stops(self):
+		return self._stops
+
+	@property
+	def co2(self):
+		return self._co2
+
+	@property
+	def emissions(self):
+		return self._emissions
+
+	@property
+	def price(self):
+		return self._price
+
+	@property
+	def time_leave(self):
+		return self._time_leave
+
+	@property
+	def time_arrive(self):
+		return self._time_arrive
+	
 
 
 	def _parse_args(self, args):
 		assert args[0].endswith('AM') or  args[0].endswith('PM'), Flight.assert_error(0)
 		assert args[2].endswith('AM') or  args[2].endswith('PM'), Flight.assert_error(1)
-		self._time_leave = args[0]
-		self._time_arrive = args[2]
+		date_format = '%Y-%m-%d %I:%M%p'
+		self._time_leave = datetime.strptime(self._date + " " + args[0], date_format)
+		self._time_arrive = datetime.strptime(self._date + " " + args[2], date_format)
 
+		# overnight flight
+		if args[0].endswith('PM') and args[2].endswith('AM'):
+			self._time_arrive += datetime.timedelta(days=1)
 
 		self._airline = args[3].split('Operated')[0]
 		self._flight_time = args[4]
@@ -75,22 +119,20 @@ class Flight:
 		self._dest = args[5][3:]
 
 		assert 'stop' in args[6], Flight.assert_error(6)
-		self._num_stops = 0 if args[6] == 'Nonstop' else int(args[6].split('')[0])
+		self._num_stops = 0 if args[6] == 'Nonstop' else int(args[6].split()[0])
 
 		if self._num_stops > 0:
 			self._stops += args[7:7 + self._num_stops]
 
 			assert args[7 + self._num_stops].endswith('CO2'), Flight.assert_error(7)
-			self.co2 = args[7 + self._num_stops]
+			self._co2 = int(args[7 + self._num_stops].split()[0])
 
 			assert args[8 + self._num_stops].endswith('emissions'), Flight.assert_error(8)
-			self._emissions = args[8 + self._num_stops]
+			emission_val = args[8 + self._num_stops].split()[0]
+			self._emissions = 0 if emission_val == 'Avg' else int(emission_val[:-1])
 
-			assert args[9 + self._num_stops].beginswith('$'), Flight.assert_error(9)
+			assert args[9 + self._num_stops].startswith('$'), Flight.assert_error(9)
 			self._price = int(args[9 + self._num_stops][1:])
-
-			assert args[10 + self._num_stops] is not None, Flight.assert_error(10)
-			self._trip_type = args[10 + self._num_stops]
 
 		else:
 			assert args[7].endswith('CO2'), Flight.assert_error(7)
@@ -103,32 +145,28 @@ class Flight:
 			assert args[9].startswith('$'), Flight.assert_error(9)
 			self._price = int(args[9][1:])
 
-			assert args[10] is not None, Flight.assert_error(10)
-			self._trip_type = args[10]
-
 	@staticmethod
-	def dataframe(flights: list[Flight]):
+	def dataframe(flights):
 		data = {
-			'Date': [],
-			'Departure Time': [],
-			'Arrival Time': [],
+			'Departure datetime': [],
+			'Arrival datetime': [],
 			'Airline(s)' : [],
 			'Travel Time' : [],
 			'Origin' : [],
 			'Destination' : [],
 			'Num Stops' : [],
-			'Layover Time' : [],
-			'Stop Location' : [],
-			'CO2 Emission' : [],
+			#'Layover Time' : [],
+			#'Stop Location' : [],
+			'CO2 Emission (kg)' : [],
 			'Emission Diff (%)' : [],
 			'Price ($)' : [],
 			'Access Date' : []
 		}
 
 		for flight in flights:
-			data['Date'] += [flight.date]
-			data['Departure Time'] += [flight.time_leave]
-			data['Arrival Time'] += [flight.time_arrive]
+			data['Departure datetime'] += [flight.time_leave]
+			data['Arrival datetime'] += [flight.time_arrive]
+			
 			data['Airline(s)'] += [flight.airline]
 			data['Travel Time'] += [flight.flight_time]
 			data['Origin'] += [flight.origin]
@@ -136,11 +174,13 @@ class Flight:
 
 			data['Num Stops'] += [flight.num_stops]
 			#data['Layover'] += [flight.stops]
-			#data['Stop Location'] += [flight.date]
+			#data['Stop Location'] += [flight.stops]
 			data['CO2 Emission (kg)'] += [flight.co2]
 			data['Emission Diff (%)'] += [flight.emissions]
 			data['Price ($)'] += [flight.price]
-			data['Access Date'] += [datetime.today()]
+			data['Access Date'] += [datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)]
+
+		return pd.DataFrame(data)
 
 
 	@staticmethod
@@ -154,6 +194,5 @@ class Flight:
 			"Parsing Arg 6 as num stop elem is incorrect."
 			"Parsing Arg 7 as CO2 elem is incorrect.",
 			"Parsing Arg 8 as emissions elem is incorrect.",
-			"Parsing Arg 9 as price elem is incorrect.",
-			"Parsing Arg 10 as trip type elem is incorrect."
+			"Parsing Arg 9 as price elem is incorrect."
 		][x]

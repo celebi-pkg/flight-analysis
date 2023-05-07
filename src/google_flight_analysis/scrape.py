@@ -29,7 +29,10 @@ class _Scrape:
 		if len(args) == 4:
 			# base call protocol
 			self._set_properties(*args)
-			self._data = self._scrape_data()
+			try:
+				self._data = self._scrape_data()
+			except TimeoutException:
+				print("TimeoutException, try again and check your internet connection!")
 			obj = self.clone()
 			obj.data = self._data
 			return obj
@@ -130,10 +133,10 @@ class _Scrape:
 
 	def _get_results(self, url):
 		results = _Scrape._make_url_request(url)
-		flights = _Scrape._clean_results(results)
+		flights = self._clean_results(results)
 		return Flight.dataframe(flights)
 
-	def _clean_results(result):
+	def _clean_results(self, result):
 		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
 
 		start = res2.index("Sort by:")+1
@@ -145,7 +148,7 @@ class _Scrape:
 
 		matches = [i for i, x in enumerate(res3) if x.endswith('PM') or x.endswith('AM')][::2]
 
-		flights = [Flight(self._date_leave res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
+		flights = [Flight(self._date_leave, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
 		return flights
 
