@@ -51,17 +51,26 @@ The main scraping function that makes up the backbone of most other functionalit
 For GitHub repository cloners, import as follows from the root of the repository:
 
 	from src.google_flight_analysis.scrape import *
+	#---OR---#
+	import sys
+	sys.path.append('src/google_flight_analysis')
+	from scrape import *
+
 
 Here is some quick starter code to accomplish the basic tasks. Find more in the [documentation](https://kcelebi.github.io/flight-analysis/).
 
 	# Try to keep the dates in format YYYY-mm-dd
 	result = Scrape('JFK', 'IST', '2022-05-20', '2022-06-10') # obtain our scrape object
-
 	dataframe = result.data # outputs a Pandas DF with flight prices/info
 	origin = result.origin # 'JFK'
 	dest = result.dest # 'IST'
 	date_leave = result.date_leave # '2022-05-20'
 	date_return = result.date_return # '2022-06-10'
+
+You can also scrape for one-way trips now:
+
+	results = Scrape('JFK', 'IST', '2022-05-20')
+	result.data.head() #see data
 
 
 ## Updates & New Features
