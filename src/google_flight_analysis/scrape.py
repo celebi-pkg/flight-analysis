@@ -37,7 +37,7 @@ class _Scrape:
 		else:
 			# data file being added to new scrape
 			self._set_properties(*(args[:-1]))
-			obj = self.clone()
+			obj = self.clone(*(args[:-1]))
 			obj.data = args[-1]
 			return obj
 
@@ -84,7 +84,7 @@ class _Scrape:
 	def _set_properties(self, *args):
 		(
 			self._origin, self._dest, self._date_leave, self._date_return
-		) = args if len(args) == 4 else args + (None,)
+		) = args if len(args) >= 4 else (args + (None,))
 
 	@property
 	def origin(self):
