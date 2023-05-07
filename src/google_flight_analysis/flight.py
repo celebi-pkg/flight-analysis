@@ -24,14 +24,15 @@ class Flight:
 		self._times = []
 		self._time_leave = None
 		self._time_arrive = None
+		self._trash = []
 
 		self._parse_args(*args)
 
 	def __repr__(self):
-		...
+		return "__repr__ To be Implemented"
 
 	def __str__(self):
-		...
+		return "__str__ To be Implemented"
 
 	@property
 	def id(self):
@@ -101,44 +102,54 @@ class Flight:
 	def time_arrive(self):
 		return self._time_arrive
 
-	@staticmethod
-	def _classify_arg(arg):
+	def _classify_arg(self, arg):
 		if ('AM' in arg or 'PM' in arg) and len(self._times) < 2:
 			# arrival or departure time
-			delta = datetime.timedelta(days = 0)
+			delta = timedelta(days = 0)
 			if arg[-2] == '+':
-				delta = datetime.timedelta(days = int(arg[-1]))
-				arg = arg[0:-2]
+				delta = timedelta(days = int(arg[-1]))
+				arg = arg[:-2]
 
-			date_format = "%Y-%m%d %I:%M%p"
+			date_format = "%Y-%m-%d %I:%M%p"
 			self._times += [datetime.strptime(self._date + " " + arg, date_format) + delta]
 
-		if 'hr' in arg or 'min'in arg:
+		elif ('hr' in arg or 'min'in arg) and self._flight_time is None:
 			# flight time
 			self._flight_time = arg
-		if 'stop' in arg:
+		elif 'stop' in arg and self._num_stops is None:
 			# num stops
 			self._num_stops = 0 if arg == 'Nonstop' else int(arg.split()[0])
-			
 
-		if 'CO2' in arg:
+			if self._num_stops > 0:
+				self._stops
+
+		elif arg.endswith('CO2') and self._co2 is None:
 			# co2
-		if 'emission' in arg:
+			self._co2 = int(arg.split()[0])
+		elif arg.endswith('emissions') and self._emissions is None:
 			# emmision
-		if '$' in arg:
+			emission_val = arg.split()[0]
+			self._emissions = 0 if emission_val == 'Avg' else int(emission_val[:-1])
+		elif '$' in arg and self._price is None:
 			# price
-		if arg == 'round trip';
-			# round trip
-		if arg == 'one way':
-			# one way
-		if arg ...:
+			self._price = int(arg[1:].replace(',',''))
+		elif len(arg) == 6 and arg.isupper() and self._origin is None and self._dest is None:
 			# origin/dest
-		if arg ...:
-			# airline
+			self._origin = arg[:3]
+			self._dest = arg[3:]
+		else:
+			self._trash += [arg]
+			# airline and other stuff idk
 
-	
+		if len(self._times) == 2:
+			self._time_leave = self._times[0]
+			self._time_arrive = self._times[1]
 
 	def _parse_args(self, args):
+		for arg in args:
+			self._classify_arg(arg)
+
+	'''def _parse_args(self, args):
 		if args[0][-2] == '+':
 			args[0] = args[0][0:-2]
 		if args[2][-2] == '+':
@@ -185,6 +196,7 @@ class Flight:
 
 			assert args[9].startswith('$'), Flight.assert_error(9, args[9])
 			self._price = int(args[9][1:])
+	'''
 
 	@staticmethod
 	def dataframe(flights):
@@ -207,7 +219,7 @@ class Flight:
 		for flight in flights:
 			data['Departure datetime'] += [flight.time_leave]
 			data['Arrival datetime'] += [flight.time_arrive]
-			
+
 			data['Airline(s)'] += [flight.airline]
 			data['Travel Time'] += [flight.flight_time]
 			data['Origin'] += [flight.origin]
