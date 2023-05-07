@@ -143,6 +143,7 @@ class _Scrape:
 
 	def _clean_results(self, result):
 		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
+		res2 = [x[0:-2] if len(x) > 2 and x[-2] == '+' else x for x in res2 ]
 
 		start = res2.index("Sort by:")+1
 		mid_start = res2.index("Price insights")

@@ -21,6 +21,7 @@ class Flight:
 		self._co2 = None
 		self._emissions = None
 		self._price = None
+		self._times = []
 		self._time_leave = None
 		self._time_arrive = None
 
@@ -99,8 +100,43 @@ class Flight:
 	@property
 	def time_arrive(self):
 		return self._time_arrive
-	
 
+	@staticmethod
+	def _classify_arg(arg):
+		if ('AM' in arg or 'PM' in arg) and len(self._times) < 2:
+			# arrival or departure time
+			delta = datetime.timedelta(days = 0)
+			if arg[-2] == '+':
+				delta = datetime.timedelta(days = int(arg[-1]))
+				arg = arg[0:-2]
+
+			date_format = "%Y-%m%d %I:%M%p"
+			self._times += [datetime.strptime(self._date + " " + arg, date_format) + delta]
+
+		if 'hr' in arg or 'min'in arg:
+			# flight time
+			self._flight_time = arg
+		if 'stop' in arg:
+			# num stops
+			self._num_stops = 0 if arg == 'Nonstop' else int(arg.split()[0])
+			
+
+		if 'CO2' in arg:
+			# co2
+		if 'emission' in arg:
+			# emmision
+		if '$' in arg:
+			# price
+		if arg == 'round trip';
+			# round trip
+		if arg == 'one way':
+			# one way
+		if arg ...:
+			# origin/dest
+		if arg ...:
+			# airline
+
+	
 
 	def _parse_args(self, args):
 		if args[0][-2] == '+':
