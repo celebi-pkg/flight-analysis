@@ -4,6 +4,7 @@
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from datetime import date, datetime, timedelta
 import numpy as np
@@ -32,7 +33,11 @@ class _Scrape:
 			try:
 				self._data = self._scrape_data()
 			except TimeoutException:
-				print("TimeoutException, try again and check your internet connection!")
+				print(
+					'''
+					TimeoutException, try again and check your internet connection!\n
+					Also possible that no flights exist for your query :(
+					''')
 			obj = self.clone()
 			obj.data = self._data
 			return obj

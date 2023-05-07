@@ -103,8 +103,13 @@ class Flight:
 
 
 	def _parse_args(self, args):
-		assert args[0].endswith('AM') or  args[0].endswith('PM'), Flight.assert_error(0)
-		assert args[2].endswith('AM') or  args[2].endswith('PM'), Flight.assert_error(1)
+		if args[0][-2] == '+':
+			args[0] = args[0][0:-2]
+		if args[2][-2] == '+':
+			args[2] = args[2][0:-2]
+
+		assert args[0].endswith('AM') or  args[0].endswith('PM'), Flight.assert_error(0, args[0])
+		assert args[2].endswith('AM') or  args[2].endswith('PM'), Flight.assert_error(1, args[2])
 		date_format = '%Y-%m-%d %I:%M%p'
 		self._time_leave = datetime.strptime(self._date + " " + args[0], date_format)
 		self._time_arrive = datetime.strptime(self._date + " " + args[2], date_format)
@@ -118,31 +123,31 @@ class Flight:
 		self._origin = args[5][:3]
 		self._dest = args[5][3:]
 
-		assert 'stop' in args[6], Flight.assert_error(6)
+		assert 'stop' in args[6], Flight.assert_error(6, args[6])
 		self._num_stops = 0 if args[6] == 'Nonstop' else int(args[6].split()[0])
 
 		if self._num_stops > 0:
 			self._stops += args[7:7 + self._num_stops]
 
-			assert args[7 + self._num_stops].endswith('CO2'), Flight.assert_error(7)
+			assert args[7 + self._num_stops].endswith('CO2'), Flight.assert_error(7, args[7 + self._num_stops])
 			self._co2 = int(args[7 + self._num_stops].split()[0])
 
-			assert args[8 + self._num_stops].endswith('emissions'), Flight.assert_error(8)
+			assert args[8 + self._num_stops].endswith('emissions'), Flight.assert_error(8, args[8 + self._num_stops])
 			emission_val = args[8 + self._num_stops].split()[0]
 			self._emissions = 0 if emission_val == 'Avg' else int(emission_val[:-1])
 
-			assert args[9 + self._num_stops].startswith('$'), Flight.assert_error(9)
+			assert args[9 + self._num_stops].startswith('$'), Flight.assert_error(9, args[9 + self._num_stops])
 			self._price = int(args[9 + self._num_stops][1:])
 
 		else:
-			assert args[7].endswith('CO2'), Flight.assert_error(7)
+			assert args[7].endswith('CO2'), Flight.assert_error(7, args[7])
 			self._co2 = int(args[7].split()[0])
 
-			assert args[8].endswith('emissions'), Flight.assert_error(8)
+			assert args[8].endswith('emissions'), Flight.assert_error(8, args[8])
 			emission_val = args[8].split()[0]
 			self._emissions = 0 if emission_val == 'Avg' else int(emission_val[:-1])
 
-			assert args[9].startswith('$'), Flight.assert_error(9)
+			assert args[9].startswith('$'), Flight.assert_error(9, args[9])
 			self._price = int(args[9][1:])
 
 	@staticmethod
@@ -184,7 +189,7 @@ class Flight:
 
 
 	@staticmethod
-	def assert_error(x):
+	def assert_error(x, arg):
 		return [
 			"Parsing Arg 0 as Date Leave elem is incorrect.",
 			"Parsing Arg 1 as Date Return elem is incorrect.",
@@ -195,4 +200,4 @@ class Flight:
 			"Parsing Arg 7 as CO2 elem is incorrect.",
 			"Parsing Arg 8 as emissions elem is incorrect.",
 			"Parsing Arg 9 as price elem is incorrect."
-		][x]
+		][x] + ": " + arg
