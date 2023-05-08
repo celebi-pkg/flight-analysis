@@ -48,7 +48,7 @@ class _CacheControl:
 				recent_access = file.readline()
 				if recent_access != current_access:
 					df_old = pd.read_csv(fname, index_col = 'Unnamed: 0')
-					df = pd.concat([df_old, df])
+					df = pd.concat([df_old, df], ignore_index = True)
 				else:
 					return # Data already in csv, redundant
 

@@ -5,11 +5,9 @@
   Written by Kaya Celebi, March 2022
 ****************************************************************************************************************************************************************/'''
 
-from typing import overload
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import json
-import os
+from tqdm import tqdm, trange
+from flight import Flight
 
 

@@ -15,3 +15,5 @@ docs/
 .pytest_cache/
 deprecated_src/
 
+src/google_flight_analysis/dev.py
+
