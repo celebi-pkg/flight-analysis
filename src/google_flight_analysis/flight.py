@@ -139,9 +139,9 @@ class Flight:
 			# or multiple stops
 			self._stops = arg
 		elif len(arg) > 0 and arg != 'Separate tickets booked together' and arg != 'Change of airport':
-			#val = arg.split(',')
-			#val = [elem[] if 'Operate' in elem for elem in val]
-			self._airline = arg
+			val = arg.split(',')
+			val = [elem.split('Operated')[0] for elem in val]
+			self._airline = ','.join(val)
 		else:
 			self._trash += [arg]
 			# airline and other stuff idk

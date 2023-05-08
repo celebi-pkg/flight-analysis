@@ -136,7 +136,7 @@ class _Scrape:
 		if self._date_return is not None:
 			return_result = self._get_results(self._make_url(self._date_return, leave = False), driver)
 			driver.quit()
-			return pd.concat([leave_result, return_result])
+			return pd.concat([leave_result, return_result], ignore_index = True)
 
 		driver.quit()
 		return leave_result
@@ -172,7 +172,6 @@ class _Scrape:
 
 	def _clean_results(self, result):
 		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
-		#res2 = [x[0:-2] if len(x) > 2 and x[-2] == '+' else x for x in res2 ]
 
 		start = res2.index("Sort by:")+1
 		mid_start = res2.index("Price insights")
