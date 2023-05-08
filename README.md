@@ -60,16 +60,16 @@ For GitHub repository cloners, import as follows from the root of the repository
 Here is some quick starter code to accomplish the basic tasks. Find more in the [documentation](https://kcelebi.github.io/flight-analysis/).
 
 	# Try to keep the dates in format YYYY-mm-dd
-	result = Scrape('JFK', 'IST', '2022-05-20', '2022-06-10') # obtain our scrape object
+	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-10') # obtain our scrape object
 	dataframe = result.data # outputs a Pandas DF with flight prices/info
 	origin = result.origin # 'JFK'
 	dest = result.dest # 'IST'
-	date_leave = result.date_leave # '2022-05-20'
-	date_return = result.date_return # '2022-06-10'
+	date_leave = result.date_leave # '2023-05-20'
+	date_return = result.date_return # '2023-06-10'
 
 You can also scrape for one-way trips now:
 
-	results = Scrape('JFK', 'IST', '2022-05-20')
+	results = Scrape('JFK', 'IST', '2023-08-20')
 	result.data.head() #see data
 
 
