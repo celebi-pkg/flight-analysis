@@ -64,8 +64,8 @@ Here is some quick starter code to accomplish the basic tasks. Find more in the 
 	dataframe = result.data # outputs a Pandas DF with flight prices/info
 	origin = result.origin # 'JFK'
 	dest = result.dest # 'IST'
-	date_leave = result.date_leave # '2023-05-20'
-	date_return = result.date_return # '2023-06-10'
+	date_leave = result.date_leave # '2023-07-20'
+	date_return = result.date_return # '2023-08-10'
 
 You can also scrape for one-way trips now:
 

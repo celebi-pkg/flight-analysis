@@ -101,8 +101,13 @@ class _Scrape:
 	'''
 	def _set_properties(self, *args):
 		(
-			self._url, self._origin, self._dest, self._date_leave, self._date_return
-		) = (self._make_url(),) + args if len(args) >= 4 else ((self._make_url(),) + args + (None,))
+			self._origin, self._dest, self._date_leave, self._date_return
+		) = args if len(args) >= 4 else args + (None,)
+
+		if len(args) >= 4:
+			self._url = [self._make_url(leave = True), self._make_url(leave = False)]
+		else:
+			self._url = self._make_url()
 
 	@property
 	def origin(self):
