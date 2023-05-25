@@ -29,10 +29,12 @@ class Flight:
 		self._parse_args(*args)
 
 	def __repr__(self):
-		return "__repr__ To be Implemented"
+		return "Flight(id:{id}, {org}-->{dest} on {date})".format(
+			id = self._id, org = self._origin, dest = self._dest, date = self._date
+		)
 
 	def __str__(self):
-		return "__str__ To be Implemented"
+		return self.__repr__()
 
 	@property
 	def id(self):
@@ -159,17 +161,17 @@ class Flight:
 		data = {
 			'Departure datetime': [],
 			'Arrival datetime': [],
-			'Airline(s)' : [],
-			'Travel Time' : [],
 			'Origin' : [],
 			'Destination' : [],
+			'Airline(s)' : [],
+			'Travel Time' : [],
+			'Price ($)' : [],
 			'Num Stops' : [],
 			'Layover' : [],
+			'Access Date' : [],
 			#'Stop Location' : [],
 			'CO2 Emission (kg)' : [],
-			'Emission Diff (%)' : [],
-			'Price ($)' : [],
-			'Access Date' : []
+			'Emission Diff (%)' : []
 		}
 
 		for flight in flights:
