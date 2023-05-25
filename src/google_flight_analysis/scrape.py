@@ -59,37 +59,37 @@ class _Scrape:
 			obj.data = args[-1]
 			return obj
 
+
+	def __add__(self, other):
+		raise NotImplementedError()
+
 	def __str__(self):
-		if self._date_return is None:
-			return "{dl}: {org} --> {dest}".format(
+		return self.__repr__()
+
+	def __repr__(self):
+		rep = "Scrape( "
+
+		if self._data.shape[0] == 0:
+			rep += "{Query Not Yet Used}\n"
+		else:
+			rep += "{n} RESULTS FOR:\n".format(n = self._data.shape[0])
+
+		rep += "{dl}: {org} --> {dest}".format(
 			dl = self._date_leave,
 			org = self._origin,
 			dest = self._dest
 		)
-		else:
-			return "{dl}: {org} --> {dest}\n{dr}: {dest} --> {org}".format(
-				dl = self._date_leave,
-				dr = self._date_return,
-				org = self._origin,
-				dest = self._dest
-			)
 
-	def __repr__(self):
-		if self._date_return is None:
-			return "Scrape({n} RESULTS FOR:\n{dl}: {org} --> {dest})".format(
-				n = self._data.shape[0],
-				dl = self._date_leave,
-				org = self._origin,
-				dest = self._dest
-			)
-		else:
-			return "Scrape({n} RESULTS FOR:\n{dl}: {org} --> {dest}\n{dr}: {dest} --> {org})".format(
-				n = self._data.shape[0],
-				dl = self._date_leave,
+		if self._date_return is not None:
+			rep +=  "\n{dr}: {dest} --> {org})".format(
 				dr = self._date_return,
 				org = self._origin,
 				dest = self._dest
 			)
+		else:
+			rep += ")"
+
+		return rep
 
 	def clone(self, *args):
 		obj = _Scrape()
