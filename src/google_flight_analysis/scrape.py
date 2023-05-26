@@ -83,11 +83,11 @@ class _Scrape:
 		else:
 			rep += "{n} RESULTS FOR:\n".format(n = self._data.shape[0])
 
-		for date in self._date:
+		for i, date in enumerate(self._date):
 			rep += "{d}: {org} --> {dest}\n".format(
 				d = date,
-				org = self._origin,
-				dest = self._dest
+				org = self._origin[i],
+				dest = self._dest[i]
 			)
 		
 		rep += ")"
@@ -126,7 +126,7 @@ class _Scrape:
 			assert len(args[1]) == 3 and type(args[1]) == str, "Issue with arg 1, see docs"
 			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
 
-			self._origin, self._dest, self._date = [args[0], args[1], args[2]]
+			self._origin, self._dest, self._date = [args[0]], [args[1]], [args[2]]
 
 			#assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
 			self._url = self._make_url()
@@ -250,7 +250,7 @@ class _Scrape:
 
 		results = [self._get_results(url, self._date[i], driver) for i, url in enumerate(self._url)]
 
-		self._data = pd.concat(result, ignore_index = True)
+		self._data = pd.concat(results, ignore_index = True)
 		
 		'''if self._date_return is not None:
 			leave_result = self._get_results(self._url[0], driver)
