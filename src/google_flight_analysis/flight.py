@@ -8,12 +8,12 @@ __all__ = ['Flight']
 
 class Flight:
 
-	def __init__(self, dl, *args):
+	def __init__(self, date, *args):
 		self._id = 1
 		self._origin = None
 		self._dest = None
-		self._date = dl
-		self._dow = datetime.strptime(dl, '%Y-%m-%d').isoweekday() # day of week
+		self._date = date
+		self._dow = datetime.strptime(date, '%Y-%m-%d').isoweekday() # day of week
 		self._airline = None
 		self._flight_time = None
 		self._num_stops = None

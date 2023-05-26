@@ -3,8 +3,8 @@ import pandas as pd
 from pathlib import Path
 import os
 
-from src.google_flight_analysis.scrape import *
-from src.google_flight_analysis.cache import *
+from google_flight_analysis.scrape import *
+from google_flight_analysis.cache import *
 
 '''
 	Create resilience test: run the code 3 times and check DBs the same
@@ -14,10 +14,10 @@ def func_0():
 	return True
 
 res1 = pd.read_csv('tests/test_data/test1.csv')
-res1 = Scrape("LGA", "RDU", "2023-05-15", "2023-06-15", res1)
+res1 = Scrape("LGA", "RDU", "2023-05-15", "2023-06-15")
 
 res2 = pd.read_csv('tests/test_data/test2.csv')
-res2 = Scrape("IST", "CDG", "2023-07-15", "2023-07-20", res2)
+res2 = Scrape("IST", "CDG", "2023-07-15", "2023-07-20",)
 
 os.system('rm tests/test_data/LGA-RDU.csv')
 os.system('rm tests/test_data/CDG-IST.csv')

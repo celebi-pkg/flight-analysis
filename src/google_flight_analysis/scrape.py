@@ -48,21 +48,15 @@ class _Scrape:
 		self._date = None
 		self._data = pd.DataFrame()
 		self._url = None
+		self._type = None
 
 	# if date leave and date return, return 2 objects?
 	def __call__(self, *args):
-		if _#len(args) <= 4:
-			# base call protocol
-			self._set_properties(*args)
-			obj = self.clone(*args)
-			obj.data = self._data
-			return obj
-		else:
-			# data file being added to new scrape
-			self._set_properties(*(args[:-1]))
-			obj = self.clone(*(args[:-1]))
-			obj.data = args[-1]
-			return obj
+		# base call protocol
+		self._set_properties(*args)
+		obj = self.clone(*args)
+		obj.data = self._data
+		return obj
 
 
 	# Ability to combine a going and return trip
@@ -134,6 +128,10 @@ class _Scrape:
 
 			self._origin, self._dest, self._date = args
 
+			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			self._url = self._make_url()
+			self._type = 'one-way'
+
 		# round-trip
 		elif len(args) == 4:
 			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
@@ -143,18 +141,34 @@ class _Scrape:
 
 			self._origin, self._dest, self._date = args[:2] + (args[2:],)
 
+			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			self._url = self._make_url()
+			self._type = 'round-trip'
+
 		# chain-trip
-		elif len(args) >= 4 and len(args) % 2 == 1:
-			
+		elif len(args) >= 3 and len(args) % 3 == 0:
+			self._origin, self._dest, self._date = [], [], []
+
+			for i in range(0, len(args), 3):
+				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
+				assert len(args[i + 1]) == 3 and type(args[i+1]) == str, "Issue with arg {}, see docs".format(i+1)
+				assert len(args[i + 2] == 10 and type(args[i + 2])) == str, "Issue with arg {}, see docs".format(i+2)
+
+				self._origin += [args[i]]
+				self._dest += [args[i + 1]]
+				self._date += [args[i + 2]]
+
+			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			self._url = self._make_url()
+			self._type = 'chain-trip'
+
 
 		# perfect-chain
-		elif _:
+		elif len(args) >= 4 and len(args) % 2 == 1:
 			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
 			assert len(args[1]) == 10 and type(args[1]) == str, "Issue with arg 1, see docs"
 
-			self._origin = [args[0]]
-			self._dest = []
-			self._date = [args[1]]
+			self._origin, self._dest, self._date = [args[0]], [], [args[1]]
 
 			for i in range(2, len(args)-1, 2):
 				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
@@ -167,8 +181,14 @@ class _Scrape:
 			assert len(args[-1]) == 3 and type(args[-1]) == str, "Issue with last arg, see docs"
 			self._dest += [args[-1]]
 
+			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			self._url = self._make_url()
+			self._type = 'perfect-chain'
+
+			
+
 		else:
-			raise Error()
+			raise NotImplementedError()
 
 		'''(
 			self._origin, self._dest, self._date_leave, self._date_return
@@ -185,6 +205,7 @@ class _Scrape:
 
 	@origin.setter
 	def origin(self, x : str) -> None:
+		assert self._data.shape[0] == 0, "Can't set origin after query has been completed."
 		self._origin = x
 
 	@property
@@ -193,23 +214,17 @@ class _Scrape:
 
 	@dest.setter
 	def dest(self, x : str) -> None:
+		assert self._data.shape[0] == 0, "Can't set destination after query has been completed."
 		self._dest = x
 
 	@property
-	def date_leave(self):
-		return self._date_leave
+	def date(self):
+		return self.date
 
-	@date_leave.setter
-	def date_leave(self, x : str) -> None:
-		self._date_leave = x
-
-	@property
-	def date_return(self):
-		return self._date_return
-
-	@date_return.setter
-	def date_return(self, x : str) -> None:
-		self._date_return = x
+	@date.setter
+	def date(self, x : str) -> None:
+		assert self._data.shape[0] == 0, "Can't set date after query has been completed."
+		self.date = x
 
 	@property
 	def data(self):
@@ -223,41 +238,44 @@ class _Scrape:
 	def url(self):
 		return self._url
 
-	@url.setter
-	def url(self, x):
-		self._url = x
-	
+	@property
+	def type(self):
+		return self._type
+
 
 	'''
 		Scrape the object. Add support for multiple queries, iterative.
 	'''
 	def _scrape_data(self, driver):
+
+		results = [self._get_results(url, self._data[i], driver) for i, url in enumerate(self._url)]
+
+		self._data = pd.concat(result)
 		
-		if self._date_return is not None:
+		'''if self._date_return is not None:
 			leave_result = self._get_results(self._url[0], driver)
 			return_result = self._get_results(self._url[1], driver)
 			self._data =  pd.concat([leave_result, return_result], ignore_index = True)
 			return
 
 		leave_result = self._get_results(self._url, driver)
-		self._data = leave_result
+		self._data = leave_result'''
 
 
-	def _make_url(self, leave = True):
-		if leave:
-			return 'https://www.google.com/travel/flights?q=Flights%20to%20{dest}%20from%20{org}%20on%20{date}%20oneway'.format(
-				dest = self._dest,
-				org = self._origin,
-				date = self._date_leave
-			)
-		else:
-			return 'https://www.google.com/travel/flights?q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
-				dest = self._dest,
-				org = self._origin,
-				date = self._date_return
-			)
+	def _make_url(self):
+		urls = []
+		for i in range(len(self._date)):
+			urls += [
+				'https://www.google.com/travel/flights?q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
+					dest = self._dest[i],
+					org = self._origin[i],
+					date = self._date[i]
+				)
+			]
+		return urls
 
-	def _get_results(self, url, driver):
+	@staticmethod
+	def _get_results(url, date, driver):
 		results = None
 		try:
 			results = _Scrape._make_url_request(url, driver)
@@ -268,10 +286,11 @@ class _Scrape:
 			)
 			return -1
 
-		flights = self._clean_results(results)
+		flights = _Scrape._clean_results(results, date)
 		return Flight.dataframe(flights)
 
-	def _clean_results(self, result):
+	@staticmethod
+	def _clean_results(result, date):
 		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
 
 		start = res2.index("Sort by:")+1
@@ -286,7 +305,7 @@ class _Scrape:
 		res3 = res2[start:mid_start] + res2[mid_end:end]
 
 		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM'))) or x[-2] == '+')][::2]
-		flights = [Flight(self._date_leave, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
+		flights = [Flight(date, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
 		return flights
 
