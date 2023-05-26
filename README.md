@@ -1,17 +1,20 @@
 [![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Live on PyPI](https://img.shields.io/badge/PyPI-1.1.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
+[![Live on PyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.3-brightgreen)](https://test.pypi.org/project/google-flight-analysis/1.1.1a3/)
 
 # Flight Analysis
 
-This project provides tools and models for users to analyze, forecast, and collect data regarding flights and prices. There are currently many features in initial stages and in development. The current features (as of 4/5/2023) are:
+This project provides tools and models for users to analyze, forecast, and collect data regarding flights and prices. There are currently many features in initial stages and in development. The current features (as of 5/25/2023) are:
 
-- Scraping tools for Google Flights
+- Detailed scraping and querying tools for Google Flights
+- Ability to store data locally or to SQL tables
 - Base analytical tools/methods for price forecasting/summary
 
 The features in development are:
 
 - Models to demonstrate ML techniques on forecasting
+- Querying of advanced features
 - API for access to previously collected data
 
 ## Table of Contents
@@ -60,17 +63,21 @@ For GitHub repository cloners, import as follows from the root of the repository
 Here is some quick starter code to accomplish the basic tasks. Find more in the [documentation](https://kcelebi.github.io/flight-analysis/).
 
 	# Try to keep the dates in format YYYY-mm-dd
-	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-10') # obtain our scrape object
-	dataframe = result.data # outputs a Pandas DF with flight prices/info
+	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-20') # obtain our scrape object
+
 	origin = result.origin # 'JFK'
 	dest = result.dest # 'IST'
-	date_leave = result.date_leave # '2023-07-20'
-	date_return = result.date_return # '2023-08-10'
+	print(result) # get the str representation of the query
 
-You can also scrape for one-way trips now:
+	ScrapeObjects(result) # modify our result in-place with the scraped data
+	print(result) # can see updated object
+	print(result.data) # can see data
+
+You can also scrape for one-way trips:
 
 	results = Scrape('JFK', 'IST', '2023-08-20')
-	result.data.head() #see data
+	ScrapeObjects(result)
+	print(result.data.head()) #see data
 
 
 ## Updates & New Features

@@ -18,52 +18,65 @@ __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 '''
 	Iterative scraping
 	If value in DB dont run just return query
+	Scraping object overhaul
+	argument change
+	advanced filters
 '''
 
-def ScrapeObjects(objs):
+def ScrapeObjects(objs, copy_objs = False):
 	if type(objs) is _Scrape:
 		objs = [objs]
 
 	driver = webdriver.Chrome()
 	driver.maximize_window()
 
+	# modifies the objects in-place
 	debug = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
 	
 	driver.quit()
 
-	return objs
+	if copy_objs:
+		return objs # returns objs as copy
 
 class _Scrape:
 
 	def __init__(self):
 		self._origin = None
 		self._dest = None
-		self._date_leave = None
-		self._date_return = None
+		#self._date_leave = None
+		#self._date_return = None
+		self._date = None
 		self._data = pd.DataFrame()
 		self._url = None
 
 	# if date leave and date return, return 2 objects?
 	def __call__(self, *args):
-		if len(args) <= 4:
+		if _#len(args) <= 4:
 			# base call protocol
 			self._set_properties(*args)
-			#self._url = self._make_url()
-			#self._data = self._scrape_data()
 			obj = self.clone(*args)
 			obj.data = self._data
 			return obj
 		else:
 			# data file being added to new scrape
 			self._set_properties(*(args[:-1]))
-			#self._url = self._make_url()
 			obj = self.clone(*(args[:-1]))
 			obj.data = args[-1]
 			return obj
 
 
+	# Ability to combine a going and return trip
+	# Can use this to chain multiple trips
 	def __add__(self, other):
 		raise NotImplementedError()
+
+		# chain trip
+		if self.dest == other.origin:
+			...
+
+			# round trip
+			if self.origin == other.dest:
+				...
 
 	def __str__(self):
 		return self.__repr__()
@@ -76,20 +89,14 @@ class _Scrape:
 		else:
 			rep += "{n} RESULTS FOR:\n".format(n = self._data.shape[0])
 
-		rep += "{dl}: {org} --> {dest}".format(
-			dl = self._date_leave,
-			org = self._origin,
-			dest = self._dest
-		)
-
-		if self._date_return is not None:
-			rep +=  "\n{dr}: {dest} --> {org})".format(
-				dr = self._date_return,
+		for date in self._dates:
+			rep += "{d}: {org} --> {dest}".format(
+				d = date,
 				org = self._origin,
 				dest = self._dest
 			)
-		else:
-			rep += ")"
+		
+		rep += ")"
 
 		return rep
 
@@ -102,14 +109,75 @@ class _Scrape:
 		Set properties upon scraper called.
 	'''
 	def _set_properties(self, *args):
-		(
+		'''
+			args Format
+
+			one-way:
+				org, dest, date
+
+			round-trip:
+				org, dest, dateleave, datereturn
+
+			chain-trip:
+				org, dest, date, org, dest, date, org, dest, date ...
+
+			perfect-chain:
+				org, date, org, date, org, date, org, date, ..., dest
+				implied condition: dest of prev city = origin of next city
+		'''
+
+		# one way
+		if len(args) == 3:
+			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
+			assert len(args[1]) == 3 and type(args[1]) == str, "Issue with arg 1, see docs"
+			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
+
+			self._origin, self._dest, self._date = args
+
+		# round-trip
+		elif len(args) == 4:
+			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
+			assert len(args[1]) == 3 and type(args[1]) == str, "Issue with arg 1, see docs"
+			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
+			assert len(args[3]) == 10 and type(args[3]) == str, "Issue with arg 3, see docs"
+
+			self._origin, self._dest, self._date = args[:2] + (args[2:],)
+
+		# chain-trip
+		elif len(args) >= 4 and len(args) % 2 == 1:
+			
+
+		# perfect-chain
+		elif _:
+			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
+			assert len(args[1]) == 10 and type(args[1]) == str, "Issue with arg 1, see docs"
+
+			self._origin = [args[0]]
+			self._dest = []
+			self._date = [args[1]]
+
+			for i in range(2, len(args)-1, 2):
+				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
+				assert len(args[i + 1] == 10 and type(args[i + 1])) == str, "Issue with arg {}, see docs".format(i+1)
+
+				self._origin += [args[i]]
+				self._dest += [args[i]]
+				self._date += [args[i+1]]
+
+			assert len(args[-1]) == 3 and type(args[-1]) == str, "Issue with last arg, see docs"
+			self._dest += [args[-1]]
+
+		else:
+			raise Error()
+
+		'''(
 			self._origin, self._dest, self._date_leave, self._date_return
 		) = args if len(args) >= 4 else args + (None,)
 
 		if len(args) >= 4:
 			self._url = [self._make_url(leave = True), self._make_url(leave = False)]
 		else:
-			self._url = self._make_url()
+			self._url = self._make_url()'''
 
 	@property
 	def origin(self):
