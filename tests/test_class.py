@@ -13,11 +13,11 @@ from google_flight_analysis.cache import *
 def func_0():
 	return True
 
-res1 = pd.read_csv('tests/test_data/test1.csv')
 res1 = Scrape("LGA", "RDU", "2023-05-15", "2023-06-15")
+res1.data = pd.read_csv('tests/test_data/test1.csv')
 
-res2 = pd.read_csv('tests/test_data/test2.csv')
 res2 = Scrape("IST", "CDG", "2023-07-15", "2023-07-20",)
+res2.data = pd.read_csv('tests/test_data/test2.csv')
 
 os.system('rm tests/test_data/LGA-RDU.csv')
 os.system('rm tests/test_data/CDG-IST.csv')

@@ -83,7 +83,7 @@ class _Scrape:
 		else:
 			rep += "{n} RESULTS FOR:\n".format(n = self._data.shape[0])
 
-		for date in self._dates:
+		for date in self._date:
 			rep += "{d}: {org} --> {dest}".format(
 				d = date,
 				org = self._origin,
@@ -219,7 +219,7 @@ class _Scrape:
 
 	@property
 	def date(self):
-		return self.date
+		return self._date
 
 	@date.setter
 	def date(self, x : str) -> None:
@@ -250,7 +250,7 @@ class _Scrape:
 
 		results = [self._get_results(url, self._data[i], driver) for i, url in enumerate(self._url)]
 
-		self._data = pd.concat(result)
+		self._data = pd.concat(result, ignore_index = True)
 		
 		'''if self._date_return is not None:
 			leave_result = self._get_results(self._url[0], driver)
