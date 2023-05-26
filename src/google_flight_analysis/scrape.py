@@ -12,7 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 
 import sys
-sys.path.append('src/google_flight_analysis')
+#sys.path.append('src/google_flight_analysis')
 from flight import *
 
 __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
