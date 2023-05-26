@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 import sys
 #sys.path.append('src/google_flight_analysis')
-from flight import *
+from google_flight_analysis.flight import *
 
 __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 
