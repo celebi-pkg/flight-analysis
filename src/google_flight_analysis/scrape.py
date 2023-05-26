@@ -11,8 +11,6 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-import sys
-#sys.path.append('src/google_flight_analysis')
 from google_flight_analysis.flight import *
 
 __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
@@ -29,11 +27,11 @@ def ScrapeObjects(objs):
 	driver = webdriver.Chrome()
 	driver.maximize_window()
 
-	results = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
+	debug = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
 	
 	driver.quit()
 
-	return results
+	return objs
 
 class _Scrape:
 
