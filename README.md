@@ -1,7 +1,7 @@
 [![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Live on PyPI](https://img.shields.io/badge/PyPI-1.1.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
-[![TestPyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.3-blue)](https://test.pypi.org/project/google-flight-analysis/1.1.1a3/)
+[![TestPyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.4-blue)](https://test.pypi.org/project/google-flight-analysis/1.1.1a4/)
 
 # Flight Analysis
 

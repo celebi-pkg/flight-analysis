@@ -128,7 +128,7 @@ class _Scrape:
 
 			self._origin, self._dest, self._date = args
 
-			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			#assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
 			self._url = self._make_url()
 			self._type = 'one-way'
 
@@ -141,7 +141,7 @@ class _Scrape:
 
 			self._origin, self._dest, self._date = args[:2] + (args[2:],)
 
-			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			#assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
 			self._url = self._make_url()
 			self._type = 'round-trip'
 
@@ -152,7 +152,7 @@ class _Scrape:
 			for i in range(0, len(args), 3):
 				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
 				assert len(args[i + 1]) == 3 and type(args[i+1]) == str, "Issue with arg {}, see docs".format(i+1)
-				assert len(args[i + 2] == 10 and type(args[i + 2])) == str, "Issue with arg {}, see docs".format(i+2)
+				assert len(args[i + 2]) == 10 and type(args[i + 2]) == str, "Issue with arg {}, see docs".format(i+2)
 
 				self._origin += [args[i]]
 				self._dest += [args[i + 1]]
