@@ -23,6 +23,9 @@ __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 '''
 
 def ScrapeObjects(objs):
+	if type(objs) is _Scrape:
+		objs = [objs]
+
 	driver = webdriver.Chrome()
 	driver.maximize_window()
 
@@ -42,6 +45,7 @@ class _Scrape:
 		self._data = pd.DataFrame()
 		self._url = None
 
+	# if date leave and date return, return 2 objects?
 	def __call__(self, *args):
 		if len(args) <= 4:
 			# base call protocol
@@ -162,12 +166,14 @@ class _Scrape:
 		Scrape the object. Add support for multiple queries, iterative.
 	'''
 	def _scrape_data(self, driver):
-		leave_result = self._get_results(self._url, driver)
-
+		
 		if self._date_return is not None:
-			return_result = self._get_results(self._url, driver) # fix url for round trip blah
+			leave_result = self._get_results(self._url[0], driver)
+			return_result = self._get_results(self._url[1], driver)
 			self._data =  pd.concat([leave_result, return_result], ignore_index = True)
+			return
 
+		leave_result = self._get_results(self._url, driver)
 		self._data = leave_result
 
 
