@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from datetime import date, datetime, timedelta
-import sqlite3
+from sqlalchemy import create_engine, insert, delete
 import json
 import os
 
@@ -26,20 +26,32 @@ class _CacheControl:
 			if _CacheControl._check_scrape(obj):
 				self.cache(obj, args[-1])
 
+
 	def __str__(self):
 		return "Function to store scraped data."
 
 	def __repr__(self):
 		return "<Function to store scraped data: CacheControl>"
 
-	def cache(self, obj, db):
+	def cache(self, obj, db = True):
 		fname = self.directory + _CacheControl._get_file_name(obj.origin, obj.dest, access = False)
 		access = self.access + _CacheControl._get_file_name(obj.origin, obj.dest, access = True)
 		df = obj.data
 		current_access = df['Access Date'].values[0]
 
 		if db:
-			...
+			if not os.path.isfile(self.directory):
+				try:
+					print('DB does not exist, creating DB file')
+					os.system('touch {db}'.format(db = self.directory))
+				except:
+					raise Exception("The provided db file name does not exist or URL is malformed.")
+		
+			engine = create_engine("sqlite:///{db}".format(db = self.directory))
+			df.to_sql(name='flights', index = False, if_exists='append', con=engine)
+			engine.dispose()
+
+			return
 
 		# If file already exists
 		if os.path.isfile(fname):
@@ -56,19 +68,6 @@ class _CacheControl:
 		with open(access, 'w') as file:
 			file.write(current_access)
 
-
-	def connect_db(self):
-		conn = sqlite3.connect(self.directory + 'flights.db')
-
-		return conn
-
-	def disconnect_db(self, conn):
-		conn.close()
-
-	def create_table():
-		...
-
-
 	'''
 		Check that the scraping instance is valid
 	'''
@@ -81,10 +80,10 @@ class _CacheControl:
 	'''
 	@staticmethod
 	def _check_dir(arg):
-		arg = arg if arg[-1] == '/' else arg + '/'
+		arg = arg if arg[-1] == '/' or arg.endswith('.db') else arg + '/'
 
 		# Initializing .access metadata for new directory type
-		if not os.path.exists(arg + '.access/'):
+		if not os.path.exists(arg + '.access/') and not arg.endswith('.db'):
 			os.system('mkdir {dir}.access'.format(dir = arg))
 
 		return arg, arg + '.access/'

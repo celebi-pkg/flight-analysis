@@ -12,10 +12,28 @@ import pandas as pd
 from tqdm import tqdm
 
 import sys
-sys.path.append('src/google_flight_analysis')
+#sys.path.append('src/google_flight_analysis')
 from flight import *
 
-__all__ = ['Scrape', '_Scrape']
+__all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
+
+'''
+	Iterative scraping
+	If value in DB dont run just return query
+'''
+
+def ScrapeObjects(objs):
+	if type(objs) is _Scrape:
+		objs = [objs]
+
+	driver = webdriver.Chrome()
+	driver.maximize_window()
+
+	results = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
+	
+	driver.quit()
+
+	return results
 
 class _Scrape:
 
@@ -24,54 +42,58 @@ class _Scrape:
 		self._dest = None
 		self._date_leave = None
 		self._date_return = None
-		self._data = None
+		self._data = pd.DataFrame()
+		self._url = None
 
+	# if date leave and date return, return 2 objects?
 	def __call__(self, *args):
 		if len(args) <= 4:
 			# base call protocol
 			self._set_properties(*args)
-			self._data = self._scrape_data()
+			#self._url = self._make_url()
+			#self._data = self._scrape_data()
 			obj = self.clone(*args)
 			obj.data = self._data
 			return obj
 		else:
 			# data file being added to new scrape
 			self._set_properties(*(args[:-1]))
+			#self._url = self._make_url()
 			obj = self.clone(*(args[:-1]))
 			obj.data = args[-1]
 			return obj
 
+
+	def __add__(self, other):
+		raise NotImplementedError()
+
 	def __str__(self):
-		if self._date_return is None:
-			return "{dl}: {org} --> {dest}".format(
+		return self.__repr__()
+
+	def __repr__(self):
+		rep = "Scrape( "
+
+		if self._data.shape[0] == 0:
+			rep += "{Query Not Yet Used}\n"
+		else:
+			rep += "{n} RESULTS FOR:\n".format(n = self._data.shape[0])
+
+		rep += "{dl}: {org} --> {dest}".format(
 			dl = self._date_leave,
 			org = self._origin,
 			dest = self._dest
 		)
-		else:
-			return "{dl}: {org} --> {dest}\n{dr}: {dest} --> {org}".format(
-				dl = self._date_leave,
-				dr = self._date_return,
-				org = self._origin,
-				dest = self._dest
-			)
 
-	def __repr__(self):
-		if self._date_return is None:
-			return "{n} RESULTS FOR:\n{dl}: {org} --> {dest}".format(
-				n = self._data.shape[0],
-				dl = self._date_leave,
-				org = self._origin,
-				dest = self._dest
-			)
-		else:
-			return "{n} RESULTS FOR:\n{dl}: {org} --> {dest}\n{dr}: {dest} --> {org}".format(
-				n = self._data.shape[0],
-				dl = self._date_leave,
+		if self._date_return is not None:
+			rep +=  "\n{dr}: {dest} --> {org})".format(
 				dr = self._date_return,
 				org = self._origin,
 				dest = self._dest
 			)
+		else:
+			rep += ")"
+
+		return rep
 
 	def clone(self, *args):
 		obj = _Scrape()
@@ -84,7 +106,12 @@ class _Scrape:
 	def _set_properties(self, *args):
 		(
 			self._origin, self._dest, self._date_leave, self._date_return
-		) = args if len(args) >= 4 else (args + (None,))
+		) = args if len(args) >= 4 else args + (None,)
+
+		if len(args) >= 4:
+			self._url = [self._make_url(leave = True), self._make_url(leave = False)]
+		else:
+			self._url = self._make_url()
 
 	@property
 	def origin(self):
@@ -126,34 +153,42 @@ class _Scrape:
 	def data(self, x):
 		self._data = x
 
+	@property
+	def url(self):
+		return self._url
+
+	@url.setter
+	def url(self, x):
+		self._url = x
+	
+
 	'''
-		Scrape the object
+		Scrape the object. Add support for multiple queries, iterative.
 	'''
-	def _scrape_data(self):
-		driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
-		driver.maximize_window()
-		leave_result = self._get_results(self._make_url(self._date_leave, leave = True), driver)
+	def _scrape_data(self, driver):
+		
 		if self._date_return is not None:
-			return_result = self._get_results(self._make_url(self._date_return, leave = False), driver)
-			driver.quit()
-			return pd.concat([leave_result, return_result], ignore_index = True)
+			leave_result = self._get_results(self._url[0], driver)
+			return_result = self._get_results(self._url[1], driver)
+			self._data =  pd.concat([leave_result, return_result], ignore_index = True)
+			return
 
-		driver.quit()
-		return leave_result
+		leave_result = self._get_results(self._url, driver)
+		self._data = leave_result
 
 
-	def _make_url(self, date, leave = True):
+	def _make_url(self, leave = True):
 		if leave:
 			return 'https://www.google.com/travel/flights?q=Flights%20to%20{dest}%20from%20{org}%20on%20{date}%20oneway'.format(
 				dest = self._dest,
 				org = self._origin,
-				date = date
+				date = self._date_leave
 			)
 		else:
 			return 'https://www.google.com/travel/flights?q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
 				dest = self._dest,
 				org = self._origin,
-				date = date
+				date = self._date_return
 			)
 
 	def _get_results(self, url, driver):
@@ -185,26 +220,9 @@ class _Scrape:
 		res3 = res2[start:mid_start] + res2[mid_end:end]
 
 		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM'))) or x[-2] == '+')][::2]
-
-		#matches = [i for i, x in enumerate(res3) if x.endswith('PM') or x.endswith('AM')][::2]
-
 		flights = [Flight(self._date_leave, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
 		return flights
-
-	@staticmethod
-	def _get_driver():
-		driver = None
-		try:
-			driver = webdriver.Chrome()
-		except:
-			raise Exception(
-				'''Appropriate ChromeDriver version not found.\n
-				Make sure Chromedriver is downloaded with appropriate version of Chrome.\n
-				In Chrome, Go to Settings --> About Chrome to find version.\n 
-				Visit https://chromedriver.chromium.org and download matching ChromeDriver version.
-				'''
-			)
 
 	@staticmethod
 	def _make_url_request(url, driver):

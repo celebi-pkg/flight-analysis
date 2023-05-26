@@ -1,5 +1,6 @@
 tqdm
 numpy
-pandas
+pandas==2.0.1
 selenium
 pytest==7.2.2
+sqlalchemy
