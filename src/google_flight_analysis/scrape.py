@@ -219,7 +219,7 @@ class _Scrape:
 
 		res3 = res2[start:mid_start] + res2[mid_end:end]
 
-		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM'))) or x[-2] == '+')][::2]
+		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM')) and ':' in x) or x[-2] == '+')][::2]
 		flights = [Flight(self._date_leave, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
 		return flights

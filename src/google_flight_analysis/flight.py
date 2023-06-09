@@ -105,7 +105,7 @@ class Flight:
 		return self._time_arrive
 
 	def _classify_arg(self, arg):
-		if ('AM' in arg or 'PM' in arg) and len(self._times) < 2:
+		if ('AM' in arg or 'PM' in arg) and len(self._times) < 2 and ':' in arg:
 			# arrival or departure time
 			delta = timedelta(days = 0)
 			if arg[-2] == '+':
