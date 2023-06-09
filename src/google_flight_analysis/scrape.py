@@ -21,6 +21,7 @@ __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 	Scraping object overhaul
 	argument change
 	advanced filters
+	Europe date display vs US date display!
 '''
 
 def ScrapeObjects(objs, copy_objs = False):
@@ -139,7 +140,7 @@ class _Scrape:
 			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
 			assert len(args[3]) == 10 and type(args[3]) == str, "Issue with arg 3, see docs"
 
-			self._origin, self._dest, self._date = args[:2] + (args[2:],)
+			self._origin, self._dest, self._date = [args[0]], [args[1]], args[2:]
 
 			#assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
 			self._url = self._make_url()
