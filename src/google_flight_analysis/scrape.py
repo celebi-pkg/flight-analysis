@@ -140,9 +140,9 @@ class _Scrape:
 			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
 			assert len(args[3]) == 10 and type(args[3]) == str, "Issue with arg 3, see docs"
 
-			self._origin, self._dest, self._date = [args[0]], [args[1]], args[2:]
+			self._origin, self._dest, self._date = [args[0], args[1]], [args[1], args[0]], args[2:]
 
-			#assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
+			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
 			self._url = self._make_url()
 			self._type = 'round-trip'
 
@@ -305,7 +305,7 @@ class _Scrape:
 
 		res3 = res2[start:mid_start] + res2[mid_end:end]
 
-		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM'))) or x[-2] == '+')][::2]
+		matches = [i for i, x in enumerate(res3) if len(x) > 2 and ((x[-2] != '+' and (x.endswith('PM') or x.endswith('AM')) and ':' in x) or x[-2] == '+')][::2]
 		flights = [Flight(date, res3[matches[i]:matches[i+1]]) for i in range(len(matches)-1)]
 
 		return flights
