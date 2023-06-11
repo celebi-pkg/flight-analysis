@@ -1,17 +1,20 @@
 [![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Live on PyPI](https://img.shields.io/badge/PyPI-1.1.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
+[![Live on PyPI](https://img.shields.io/badge/PyPI-1.2.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
+[![TestPyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.11-blue)](https://test.pypi.org/project/google-flight-analysis/1.1.1a11/)
 
 # Flight Analysis
 
-This project provides tools and models for users to analyze, forecast, and collect data regarding flights and prices. There are currently many features in initial stages and in development. The current features (as of 4/5/2023) are:
+This project provides tools and models for users to analyze, forecast, and collect data regarding flights and prices. There are currently many features in initial stages and in development. The current features (as of 5/25/2023) are:
 
-- Scraping tools for Google Flights
+- Detailed scraping and querying tools for Google Flights
+- Ability to store data locally or to SQL tables
 - Base analytical tools/methods for price forecasting/summary
 
 The features in development are:
 
 - Models to demonstrate ML techniques on forecasting
+- Querying of advanced features
 - API for access to previously collected data
 
 ## Table of Contents
@@ -59,19 +62,46 @@ For GitHub repository cloners, import as follows from the root of the repository
 
 Here is some quick starter code to accomplish the basic tasks. Find more in the [documentation](https://kcelebi.github.io/flight-analysis/).
 
-	# Try to keep the dates in format YYYY-mm-dd
-	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-10') # obtain our scrape object
-	dataframe = result.data # outputs a Pandas DF with flight prices/info
-	origin = result.origin # 'JFK'
-	dest = result.dest # 'IST'
-	date_leave = result.date_leave # '2023-07-20'
-	date_return = result.date_return # '2023-08-10'
+	# Keep the dates in format YYYY-mm-dd
+	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-20') # obtain our scrape object, represents out query
+	result.type # This is in a round-trip format
+	result.origin # ['JFK', 'IST']
+	result.dest # ['IST', 'JFK']
+	result.dates # ['2023-07-20', '2023-08-20']
+	print(result) # get unqueried str representation
 
-You can also scrape for one-way trips now:
+A `Scrape` object represents a Google Flights query to be run. It maintains flights as a sequence of one or more one-way flights which have a origin, destination, and flight date. The above object for a round-trip flight from JFK to IST is a sequence of JFK --> IST, then IST --> JFK. We can obtain the data as follows:
+
+	ScrapeObjects(result) # runs selenium through ChromeDriver, modifies results in-place
+	result.data # returns pandas DF
+	print(result) # get queried representation of result
+
+You can also scrape for one-way trips:
 
 	results = Scrape('JFK', 'IST', '2023-08-20')
-	result.data.head() #see data
+	ScrapeObjects(result)
+	result.data #see data
 
+You can also scrape chain-trips, which are defined as a sequence of one-way flights that have no direct relation to each other, other than being in chronological order. 
+
+	# chain-trip format: origin, dest, date, origin, dest, date, ...
+	result = Scrape('JFK', 'IST', '2023-08-20', 'RDU', 'LGA', '2023-12-25', 'EWR', 'SFO', '2024-01-20')
+	result.type # chain-trip
+	ScrapeObjects(result)
+	result.data # see data
+
+You can also scrape perfect-chains, which are defined as a sequence of one-way flights such that the destination of the previous flight is the origin of the next and the origin of the chain is the final destination of the chain (a cycle).
+
+	# perfect-chain format: origin, date, origin, date, ..., first_origin
+	result = Scrape("JFK", "2023-09-20", "IST", "2023-09-25", "CDG", "2023-10-10", "LHR", "2023-11-01", "JFK")
+	result.type # perfect-chain
+	ScrapeObjects(result)
+	result.data # see data
+
+You can read more about the different type of trips in the documentation. Scrape objects can be added to one another to create larger queries. This is under the conditions:
+
+1. The objects being added are the same type of trip (one-way, round-trip, etc)
+2. The objects being added are either both unqueried or both queried
 
 ## Updates & New Features
 
