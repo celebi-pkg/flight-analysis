@@ -1,6 +1,7 @@
 tqdm
 numpy
-pandas==2.0.1
+pandas
 selenium
-pytest==7.2.2
+pytest
 sqlalchemy
+chromedriver_autoinstaller

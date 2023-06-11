@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+import chromedriver_autoinstaller
 from datetime import date, datetime, timedelta
 import numpy as np
 import pandas as pd
@@ -28,7 +29,7 @@ def ScrapeObjects(objs, copy_objs = False):
 	if type(objs) is _Scrape:
 		objs = [objs]
 
-	driver = webdriver.Chrome()
+	chromedriver_autoinstaller.install() # check if chromedriver is installed correctly and on path
 	driver.maximize_window()
 
 	# modifies the objects in-place
@@ -267,7 +268,7 @@ class _Scrape:
 		urls = []
 		for i in range(len(self._date)):
 			urls += [
-				'https://www.google.com/travel/flights?q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
+				'https://www.google.com/travel/flights?hl=en&q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
 					dest = self._dest[i],
 					org = self._origin[i],
 					date = self._date[i]
