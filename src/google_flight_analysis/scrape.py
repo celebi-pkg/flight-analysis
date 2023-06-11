@@ -30,7 +30,9 @@ def ScrapeObjects(objs, copy_objs = False):
 	if type(objs) is _Scrape:
 		objs = [objs]
 
+
 	chromedriver_autoinstaller.install() # check if chromedriver is installed correctly and on path
+	driver = webdriver.Chrome()
 	driver.maximize_window()
 
 	# modifies the objects in-place
