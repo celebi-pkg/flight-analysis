@@ -26,7 +26,7 @@ date_format = "%Y-%m-%d"
 	Europe date display vs US date display!
 '''
 
-def ScrapeObjects(objs, copy_objs = False):
+def ScrapeObjects(objs, deep_copy = False):
 	if type(objs) is _Scrape:
 		objs = [objs]
 
@@ -40,7 +40,7 @@ def ScrapeObjects(objs, copy_objs = False):
 	
 	driver.quit()
 
-	if copy_objs:
+	if deep_copy:
 		return objs # returns objs as copy
 
 class _Scrape:
