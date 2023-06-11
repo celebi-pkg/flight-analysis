@@ -46,8 +46,6 @@ class _Scrape:
 	def __init__(self):
 		self._origin = None
 		self._dest = None
-		#self._date_leave = None
-		#self._date_return = None
 		self._date = None
 		self._data = pd.DataFrame()
 		self._url = None
