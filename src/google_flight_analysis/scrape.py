@@ -16,6 +16,7 @@ from google_flight_analysis.flight import *
 
 __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 
+date_format = "%Y-%m-%d"
 '''
 	Iterative scraping
 	If value in DB dont run just return query
@@ -64,16 +65,131 @@ class _Scrape:
 	# Ability to combine a going and return trip
 	# Can use this to chain multiple trips
 	def __add__(self, other):
-		raise NotImplementedError()
 
-		# chain trip
-		if self.dest == other.origin:
-			...
+		assert self.type == other.type, "Can't add {a} with {b}. See docs".format(a = self.type, b = other.type)
 
-			# round trip
-			if self.origin == other.dest:
-				...
+		assert (self.data.empty and other.data.empty) or (not self.data.empty and not other.data.empty), "Error with addition. Both queries must either be unused or queried."
 
+		obj_type = self.type
+		if obj_type == 'one-way':
+			# adding two one-ways could be a round trip
+			if self.origin == other.dest and self.dest == other.origin:
+
+				if self.data.empty:
+					return Scrape(self.origin[0], self.dest[0], *self.date, *other.date)
+				else:
+					obj = Scrape(self.origin[0], self.dest[0], *self.date)
+					obj.data = pd.concat([self.data, other.data])
+					return obj
+
+			# otherwise, must be chain
+			if self.data.empty:
+				return Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+			else:
+				obj = Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+				obj.data = pd.concat([self.data, other.data])
+				return obj
+
+
+		elif obj_type == 'round-trip':
+			# adding two round-trips makes it into a chain, possible perfect chain
+			# example of perfect: (JFK --> IST, IST --> JFK) + (JFK --> CDG, CDG --> JFK)
+
+			assert datetime.strptime(self.date[1], date_format) < datetime.strptime(other.date[0], date_format), "Dates are not in order. Make sure to provide them in increasing order in YYYY-MM-DD format."
+
+			# check perfect chain
+			if self.origin[0] == other.origin[0]:
+				if self.data.empty:
+					return Scrape(
+						*self.unpack([[self.origin[i], date] for i, date in enumerate(self.date)]),
+						*self.unpack([[other.origin[i], date] for i, date in enumerate(other.date)] + [[other.dest[-1]]])
+					)
+				else:
+					obj = Scrape(
+						*self.unpack([[self.origin[i], date] for i, date in enumerate(self.date)]),
+						*self.unpack([[other.origin[i], date] for i, date in enumerate(other.date)] + [[other.dest[-1]]])
+					)
+					obj.data = pd.concat([self.data, other.data])
+					return obj
+
+			# otherwise, return chain
+			if self.data.empty:
+				return Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+			else:
+				obj = Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+				obj.data = pd.concat([self.data, other.data])
+				return obj
+
+		elif obj_type == 'chain-trip':
+			# must result in chain
+			# check last date of self < first of other
+
+			assert datetime.strptime(self.date[-1], date_format) < datetime.strptime(other.date[0], date_format), "Dates are not in order. Make sure to provide them in increasing order in YYYY-MM-DD format."
+
+			if self.data.empty:
+				return Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+			else:
+				obj = Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+				obj.data = pd.concat([self.data, other.data])
+				return obj
+
+		elif obj_type == 'perfect-chain':
+			# only outputs perfect chain if origins are same
+
+			assert datetime.strptime(self.date[-1], date_format) < datetime.strptime(other.date[0], date_format), "Dates are not in order. Make sure to provide them in increasing order in YYYY-MM-DD format."
+
+			# perfect-chain
+			if self.origin[0] == other.origin[0]:
+
+				if self.data.empty:
+					return Scrape(
+						*self.unpack([[self.origin[i], date] for i, date in enumerate(self.date)]),
+						*self.unpack([[other.origin[i], date] for i, date in enumerate(other.date)] + [[other.dest[-1]]])
+					)
+				else:
+					obj = Scrape(
+						*self.unpack([[self.origin[i], date] for i, date in enumerate(self.date)]),
+						*self.unpack([[other.origin[i], date] for i, date in enumerate(other.date)] + [[other.dest[-1]]])
+					)
+					obj.data = pd.concat([self.data, other.data])
+					return obj
+
+			# otherwise, just chain
+			if self.data.empty:
+				return Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+			else:
+				obj = Scrape(
+					*self.unpack([[self.origin[i], self.dest[i], date] for i, date in enumerate(self.date)]),
+					*self.unpack([[other.origin[i], other.dest[i], date] for i, date in enumerate(other.date)])
+				)
+				obj.data = pd.concat([self.data, other.data])
+				return obj
+
+		else:
+			raise NotImplementedError()
+
+	
 	def __str__(self):
 		return self.__repr__()
 
@@ -99,6 +215,20 @@ class _Scrape:
 	def clone(self, *args):
 		obj = _Scrape()
 		obj._set_properties(*args)
+		return obj
+
+	def unpack(self, args):
+		arr = []
+		for arg in args:
+			arr += arg
+		return arr
+
+	def combine(self, other, *args):
+		if self.data is None:
+			return Scrape(*args)
+		
+		obj = Scrape(*args)
+		obj.data = pd.concat([self.data, other.data])
 		return obj
 
 	'''
@@ -141,6 +271,8 @@ class _Scrape:
 			assert len(args[2]) == 10 and type(args[2]) == str, "Issue with arg 2, see docs"
 			assert len(args[3]) == 10 and type(args[3]) == str, "Issue with arg 3, see docs"
 
+			assert datetime.strptime(args[2], date_format) < datetime.strptime(args[3], date_format), "Dates are not in order. Make sure to provide them in increasing order in YYYY-MM-DD format."
+
 			self._origin, self._dest, self._date = [args[0], args[1]], [args[1], args[0]], args[2:]
 
 			assert len(self._origin) == len(self._dest) == len(self._date), "Issue with array lengths, talk to dev"
@@ -155,6 +287,9 @@ class _Scrape:
 				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
 				assert len(args[i + 1]) == 3 and type(args[i+1]) == str, "Issue with arg {}, see docs".format(i+1)
 				assert len(args[i + 2]) == 10 and type(args[i + 2]) == str, "Issue with arg {}, see docs".format(i+2)
+				
+				if i > 0:
+					assert datetime.strptime(self._date[-1], date_format) < datetime.strptime(args[i + 2], date_format), "Dates are not in order ({d1} > {d2}). Make sure to provide them in increasing order in YYYY-MM-DD format.".format(d1 = self._date[-1], d2 = args[i+2])
 
 				self._origin += [args[i]]
 				self._dest += [args[i + 1]]
@@ -166,7 +301,7 @@ class _Scrape:
 
 
 		# perfect-chain
-		elif len(args) >= 4 and len(args) % 2 == 1:
+		elif len(args) >= 4 and len(args) % 2 == 1 and len(args[-1]) == 3 and type(args[-1]) == str:
 			assert len(args[0]) == 3 and type(args[0]) == str, "Issue with arg 0, see docs"
 			assert len(args[1]) == 10 and type(args[1]) == str, "Issue with arg 1, see docs"
 
@@ -175,6 +310,7 @@ class _Scrape:
 			for i in range(2, len(args)-1, 2):
 				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
 				assert len(args[i + 1]) == 10 and type(args[i + 1]) == str, "Issue with arg {}, see docs".format(i+1)
+				assert datetime.strptime(self._date[-1], date_format) < datetime.strptime(args[i + 1], date_format), "Dates are not in order ({d1} > {d2}). Make sure to provide them in increasing order in YYYY-MM-DD format.".format(d1 = self._date[-1], d2 = args[i+1])
 
 				self._origin += [args[i]]
 				self._dest += [args[i]]
@@ -187,19 +323,8 @@ class _Scrape:
 			self._url = self._make_url()
 			self._type = 'perfect-chain'
 
-			
-
 		else:
 			raise NotImplementedError()
-
-		'''(
-			self._origin, self._dest, self._date_leave, self._date_return
-		) = args if len(args) >= 4 else args + (None,)
-
-		if len(args) >= 4:
-			self._url = [self._make_url(leave = True), self._make_url(leave = False)]
-		else:
-			self._url = self._make_url()'''
 
 	@property
 	def origin(self):
@@ -249,19 +374,8 @@ class _Scrape:
 		Scrape the object. Add support for multiple queries, iterative.
 	'''
 	def _scrape_data(self, driver):
-
 		results = [self._get_results(url, self._date[i], driver) for i, url in enumerate(self._url)]
-
 		self._data = pd.concat(results, ignore_index = True)
-		
-		'''if self._date_return is not None:
-			leave_result = self._get_results(self._url[0], driver)
-			return_result = self._get_results(self._url[1], driver)
-			self._data =  pd.concat([leave_result, return_result], ignore_index = True)
-			return
-
-		leave_result = self._get_results(self._url, driver)
-		self._data = leave_result'''
 
 
 	def _make_url(self):
@@ -313,8 +427,6 @@ class _Scrape:
 
 	@staticmethod
 	def _make_url_request(url, driver):
-		#driver = webdriver.Chrome()#'/Users/kayacelebi/Downloads/chromedriver')
-		#driver.maximize_window()
 		driver.get(url)
 
 		# Waiting and initial XPATH cleaning

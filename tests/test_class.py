@@ -32,6 +32,24 @@ res5 = Scrape("JFK", "AMS", "2023-11-10", "CDG", "AMS", "2023-11-17", "AMS", "IS
 # perfect chain
 res6 = Scrape("JFK", "2023-11-10", "AMS", "2023-11-17", "CDG", "2023-11-20", "IST", "2023-11-25", "JFK")
 
+# addition tests
+res7 = Scrape("JFK", "IST", "2023-12-05")
+res8 = Scrape("IST", "JFK", "2023-12-30")
+
+res9 = Scrape("JFK", "IST", "2023-12-05", "2023-12-30")
+res10 = Scrape("JFK", "CDG", "2024-01-10", "2024-02-10")
+
+
+print(res9.origin[0] == res10.origin[0], res9.type, res10.type)
+
+print('12')
+out12 = res1 + res2
+print('78')
+out78 = res7 + res8
+print('910')
+out910 = res9 + res10
+print('done?')
+
 '''os.system('rm tests/test_data/LGA-RDU.csv')
 os.system('rm tests/test_data/CDG-IST.csv')
 os.system('rm -rf tests/test_data/.access')
@@ -119,6 +137,22 @@ def test_21():
 
 def test_22():
 	assert res6.date == ["2023-11-10", "2023-11-17", "2023-11-20", "2023-11-25"], "Test 22 Failed."
+
+
+#-------ADDITION
+
+def test_23():
+	assert out12.type == 'chain-trip', "Test 23 Failed."
+
+def test_24():
+	assert out12.data.shape[0] > 0, "Test 24 Failed."
+
+def test_25():
+	assert out78.type == 'round-trip', "Test 25 Failed."
+
+def test_26():
+	assert out910.type == 'perfect-chain', "Test 26 Failed."
+
 
 
 '''#-------CACHE 1
