@@ -30,7 +30,7 @@ res4 = Scrape("CDG", "JFK", "2023-12-15")
 res5 = Scrape("JFK", "AMS", "2023-11-10", "CDG", "AMS", "2023-11-17", "AMS", "IST", "2023-11-25")
 
 # perfect chain
-res6 = Scrape("JFK", "2023-11-10", "AMS", "2023-11-17", "CDG", "2023-11-17", "IST", "2023-11-25")
+res6 = Scrape("JFK", "2023-11-10", "AMS", "2023-11-17", "CDG", "2023-11-20", "IST", "2023-11-25", "JFK")
 
 '''os.system('rm tests/test_data/LGA-RDU.csv')
 os.system('rm tests/test_data/CDG-IST.csv')
@@ -112,13 +112,13 @@ def test_19():
 #-------QUERY 6
 
 def test_20():
-	assert res6.origin == ["JFK", "AMS", "CDG"], "Test 20 Failed."
+	assert res6.origin == ["JFK", "AMS", "CDG", "IST"], "Test 20 Failed."
 
 def test_21():
-	assert res6.dest == ["AMS", "CDG", "IST"], "Test 21 Failed."
+	assert res6.dest == ["AMS", "CDG", "IST", "JFK"], "Test 21 Failed."
 
 def test_22():
-	assert res6.date == ["2023-11-10", "2023-11-17", "2023-11-25"], "Test 22 Failed."
+	assert res6.date == ["2023-11-10", "2023-11-17", "2023-11-20", "2023-11-25"], "Test 22 Failed."
 
 
 '''#-------CACHE 1

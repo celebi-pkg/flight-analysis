@@ -146,8 +146,8 @@ class _Scrape:
 			self._url = self._make_url()
 			self._type = 'round-trip'
 
-		# chain-trip
-		elif len(args) >= 3 and len(args) % 3 == 0:
+		# chain-trip, chain is component of 3s, check that last one is an actual date to not confuse w perfect
+		elif len(args) >= 3 and len(args) % 3 == 0 and len(args[-1]) == 10 and type(args[-1]) == str:
 			self._origin, self._dest, self._date = [], [], []
 
 			for i in range(0, len(args), 3):
@@ -173,7 +173,7 @@ class _Scrape:
 
 			for i in range(2, len(args)-1, 2):
 				assert len(args[i]) == 3 and type(args[i]) == str, "Issue with arg {}, see docs".format(i)
-				assert len(args[i + 1] == 10 and type(args[i + 1])) == str, "Issue with arg {}, see docs".format(i+1)
+				assert len(args[i + 1]) == 10 and type(args[i + 1]) == str, "Issue with arg {}, see docs".format(i+1)
 
 				self._origin += [args[i]]
 				self._dest += [args[i]]
