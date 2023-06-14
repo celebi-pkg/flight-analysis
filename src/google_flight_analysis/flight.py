@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 __all__ = ['Flight']
 
+CURRENCY_SYMBOLS_LIST = ['₼', 'NT$', 'ج.س.', '₣', 'RD$', 'ден', '֏', '.د.ب', '₮', 'T$', 'Ξ', 'TT$', '₫', 'د.إ', 'Z$', 'ع.د', '₱', '₤', '$U', '₸', '$b', '€', '฿', 'R$', '₦', 'ƒ', 'BZ$', '£', '₨', '$', 'دج', '৳', '₽', '₾', 'Ł', 'MOP$', 'Kč', '¥', '₺', 'GH₵', '￥', 'B/.', 'zł', 'S/.', 'WS$', '₡', 'د.ت', 'Дин.', 'R₣', '₴', 'J$', '₹', '﷼', 'C$', 'Ƀ', '₭', '₪', '₩', 'лв', '₵', '؋', '៛']
 
 class Flight:
 
@@ -21,6 +22,7 @@ class Flight:
 		self._co2 = None
 		self._emissions = None
 		self._price = None
+		self._price_currency = None
 		self._times = []
 		self._time_leave = None
 		self._time_arrive = None
@@ -95,6 +97,10 @@ class Flight:
 	@property
 	def price(self):
 		return self._price
+	
+	@property
+	def price_currency(self):
+		return self._price_currency
 
 	@property
 	def time_leave(self):
@@ -105,6 +111,12 @@ class Flight:
 		return self._time_arrive
 
 	def _classify_arg(self, arg):
+		if self._price_currency == None:
+			for symbol in CURRENCY_SYMBOLS_LIST:
+				if symbol in arg:
+					self._price_currency = symbol
+					break
+		
 		if ('AM' in arg or 'PM' in arg) and len(self._times) < 2 and ':' in arg:
 			# arrival or departure time
 			delta = timedelta(days = 0)
@@ -121,7 +133,6 @@ class Flight:
 		elif 'stop' in arg and self._num_stops is None:
 			# num stops
 			self._num_stops = 0 if arg == 'Nonstop' else int(arg.split()[0])
-
 		elif arg.endswith('CO2') and self._co2 is None:
 			# co2
 			self._co2 = int(arg.split()[0])
@@ -129,9 +140,9 @@ class Flight:
 			# emmision
 			emission_val = arg.split()[0]
 			self._emissions = 0 if emission_val == 'Avg' else int(emission_val[:-1])
-		elif '$' in arg and self._price is None:
+		elif self._price_currency != None and self._price_currency in arg and self._price is None:
 			# price
-			self._price = int(arg[1:].replace(',',''))
+			self._price = int(arg.replace(',','').replace(self._price_currency, '').replace('.', '').replace(' ', ''))
 		elif len(arg) == 6 and arg.isupper() and self._origin is None and self._dest is None:
 			# origin/dest
 			self._origin = arg[:3]
@@ -165,7 +176,7 @@ class Flight:
 			'Destination' : [],
 			'Airline(s)' : [],
 			'Travel Time' : [],
-			'Price ($)' : [],
+			'Price ({price_currency})'.format(price_currency=flights[0].price_currency) : [],
 			'Num Stops' : [],
 			'Layover' : [],
 			'Access Date' : [],
@@ -188,7 +199,7 @@ class Flight:
 			#data['Stop Location'] += [flight.stops]
 			data['CO2 Emission (kg)'] += [flight.co2]
 			data['Emission Diff (%)'] += [flight.emissions]
-			data['Price ($)'] += [flight.price]
+			data['Price ({price_currency})'.format(price_currency=flight.price_currency)] += [flight.price]
 			data['Access Date'] += [datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)]
 
 		return pd.DataFrame(data)

@@ -407,7 +407,8 @@ class _Scrape:
 
 	@staticmethod
 	def _clean_results(result, date):
-		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
+		res2 = [x.encode("utf-8", "ignore").decode().strip() for x in result]
+		res2 = [x.replace('\u202f', '') for x in res2]
 
 		start = res2.index("Sort by:")+1
 		mid_start = res2.index("Price insights")
