@@ -375,7 +375,7 @@ class _Scrape:
 	'''
 	def _scrape_data(self, driver):
 		results = [self._get_results(url, self._date[i], driver) for i, url in enumerate(self._url)]
-		self._data = pd.concat(results, ignore_index = True)
+		self._data = pd.concat(list(filter(lambda item: isinstance(item, pd.DataFrame), results)), ignore_index = True)
 
 
 	def _make_url(self):
