@@ -382,7 +382,7 @@ class _Scrape:
 		urls = []
 		for i in range(len(self._date)):
 			urls += [
-				'https://www.google.com/travel/flights?hl=en&q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
+				'https://www.google.com/travel/flights?hl=en&q=Flights%20to%20{dest}%20from%20{org}%20on%20{date}%20oneway'.format(
 					dest = self._dest[i],
 					org = self._origin[i],
 					date = self._date[i]
