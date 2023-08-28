@@ -375,14 +375,14 @@ class _Scrape:
 	'''
 	def _scrape_data(self, driver):
 		results = [self._get_results(url, self._date[i], driver) for i, url in enumerate(self._url)]
-		self._data = pd.concat(results, ignore_index = True)
+		self._data = pd.concat(list(filter(lambda item: isinstance(item, pd.DataFrame), results)), ignore_index = True)
 
 
 	def _make_url(self):
 		urls = []
 		for i in range(len(self._date)):
 			urls += [
-				'https://www.google.com/travel/flights?hl=en&q=Flights%20to%20{org}%20from%20{dest}%20on%20{date}%20oneway'.format(
+				'https://www.google.com/travel/flights?hl=en&q=Flights%20to%20{dest}%20from%20{org}%20on%20{date}%20oneway'.format(
 					dest = self._dest[i],
 					org = self._origin[i],
 					date = self._date[i]
