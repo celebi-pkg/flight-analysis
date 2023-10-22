@@ -67,7 +67,7 @@ Here is some quick starter code to accomplish the basic tasks. Find more in the 
 	result.type # This is in a round-trip format
 	result.origin # ['JFK', 'IST']
 	result.dest # ['IST', 'JFK']
-	result.dates # ['2023-07-20', '2023-08-20']
+	result.date # ['2023-07-20', '2023-08-20']
 	print(result) # get unqueried str representation
 
 A `Scrape` object represents a Google Flights query to be run. It maintains flights as a sequence of one or more one-way flights which have a origin, destination, and flight date. The above object for a round-trip flight from JFK to IST is a sequence of JFK --> IST, then IST --> JFK. We can obtain the data as follows:
