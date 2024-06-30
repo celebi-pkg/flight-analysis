@@ -112,7 +112,7 @@ class Flight:
 				delta = timedelta(days = int(arg[-1]))
 				arg = arg[:-2]
 
-			date_format = "%Y-%m-%d %I:%M%p"
+			date_format = "%Y-%m-%d %I:%M %p"
 			self._times += [datetime.strptime(self._date + " " + arg, date_format) + delta]
 
 		elif ('hr' in arg or 'min'in arg) and self._flight_time is None:
