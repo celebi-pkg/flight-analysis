@@ -4,5 +4,6 @@ pandas
 selenium
 pytest
 sqlalchemy
+jupyter
 
 chromedriver-autoinstaller
