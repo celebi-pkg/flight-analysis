@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-import chromedriver_autoinstaller
+from selenium.webdriver.chrome.options import Options
 from datetime import date, datetime, timedelta
 import numpy as np
 import pandas as pd
@@ -24,20 +24,25 @@ date_format = "%Y-%m-%d"
 	argument change
 	advanced filters
 	Europe date display vs US date display!
+	accept datetime objects?
 '''
 
-def ScrapeObjects(objs, deep_copy = False):
+def ScrapeObjects(objs, parsing_model = None, deep_copy = False):
 	if type(objs) is _Scrape:
 		objs = [objs]
 
 
 	chromedriver_autoinstaller.install() # check if chromedriver is installed correctly and on path
-	driver = webdriver.Chrome()
+	options = Options()
+	options.add_argument('--no-sandbox')
+	options.add_argument("--headless")
+	options.add_argument('--disable-dev-shm-usage')
+	driver = webdriver.Chrome(options = options)
 	driver.maximize_window()
 
 	# modifies the objects in-place
 	debug = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
-	
+	retry_debug = [obj._scrape_data(driver) for i, obj in enumerate(tqdm(objs, desc = "Retrying Failed Objects")) if debug[i] == -1]
 	driver.quit()
 
 	if deep_copy:
@@ -373,9 +378,21 @@ class _Scrape:
 	'''
 		Scrape the object. Add support for multiple queries, iterative.
 	'''
-	def _scrape_data(self, driver):
-		results = [self._get_results(url, self._date[i], driver) for i, url in enumerate(self._url)]
-		self._data = pd.concat(results, ignore_index = True)
+	def _scrape_data(self, driver, parsing_model):
+		results = [self._get_results(url, self._date[i], driver, parsing_model) for i, url in enumerate(self._url)]
+		for res in results:
+			if type(res) is not pd.DataFrame and res == -1:
+				print(
+					'''TimeoutException, try again and check your internet connection!\n
+						Also possible that no flights exist for your query :( '''.replace('\t','')
+				)
+				return -1
+		try:
+			self._data = pd.concat(results, ignore_index = True)
+			return 0
+		except:
+			print("There was an issue with this query")
+			return -1
 
 
 	def _make_url(self):
@@ -391,7 +408,7 @@ class _Scrape:
 		return urls
 
 	@staticmethod
-	def _get_results(url, date, driver):
+	def _get_results(url, date, driver, parsing_model):
 		results = None
 		try:
 			results = _Scrape._make_url_request(url, driver)
@@ -402,11 +419,13 @@ class _Scrape:
 			)
 			return -1
 
-		flights = _Scrape._clean_results(results, date)
+		flights = _Scrape._clean_results(results, date, parsing_model)
 		return Flight.dataframe(flights)
 
 	@staticmethod
-	def _clean_results(result, date):
+	def _clean_results(result, date, parsing_model):
+		# if model is None:
+		# ....
 		res2 = [x.encode("ascii", "ignore").decode().strip() for x in result]
 
 		start = res2.index("Sort by:")+1

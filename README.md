@@ -1,7 +1,7 @@
 [![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Live on PyPI](https://img.shields.io/badge/PyPI-1.2.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
-[![TestPyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.11-blue)](https://test.pypi.org/project/google-flight-analysis/1.1.1a11/)
+[![TestPyPI](https://img.shields.io/badge/PyPI-1.2.1--alpha.1-blue)](https://test.pypi.org/project/google-flight-analysis/1.2.1a1/)
 
 # Flight Analysis
 
@@ -67,7 +67,7 @@ Here is some quick starter code to accomplish the basic tasks. Find more in the 
 	result.type # This is in a round-trip format
 	result.origin # ['JFK', 'IST']
 	result.dest # ['IST', 'JFK']
-	result.dates # ['2023-07-20', '2023-08-20']
+	result.date # ['2023-07-20', '2023-08-20']
 	print(result) # get unqueried str representation
 
 A `Scrape` object represents a Google Flights query to be run. It maintains flights as a sequence of one or more one-way flights which have a origin, destination, and flight date. The above object for a round-trip flight from JFK to IST is a sequence of JFK --> IST, then IST --> JFK. We can obtain the data as follows:
@@ -143,4 +143,5 @@ All of these functions are clearly documented in the `scraping.py` file.
 
 Here are some great flights I was able to find and actually booked when planning my travel/vacations:
 
-- NYC ➡️ AMS (May 9), AMS ➡️ IST (May 12), IST ➡️ NYC (May 23) | Trip Total: $611 as of March 7, 2022
+- JFK ➡️ AMS (May 9), AMS ➡️ IST (May 12), IST ➡️ JFK (May 23) | Trip Total: $611 as of March 7, 2022
+- JFK ➡️ IST, IST ➡️ GZP, GZP ➡️ ESB, ESB ➡️ SAW, SAW ➡️ FCO, CDG ➡️ JFK | Trip Total: ... as of April 10, 2023

@@ -4,4 +4,3 @@ pandas
 selenium
 pytest
 sqlalchemy
-chromedriver-autoinstaller
