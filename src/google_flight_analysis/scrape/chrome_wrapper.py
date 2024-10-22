@@ -1,12 +1,13 @@
-class Driver:
+class ChromeDriverWrapper:
 
-	def __init__(self):
+	def __init__(self, config):
+		# how does htis work??
 		chromedriver_autoinstaller.install() # check if chromedriver is installed correctly and on path
 		
+		self.config = config
 		self.options = Options()
-		self.options.add_argument('--no-sandbox')
-		self.options.add_argument("--headless")
-		self.options.add_argument('--disable-dev-shm-usage')
+		for option in self.config['options']:
+			self.options.add_argument(option)
 		
 		self.driver = webdriver.Chrome(options = options)
 		self.driver.maximize_window()
@@ -14,7 +15,13 @@ class Driver:
 	'''
 		query -- an xpath query
 	'''
-	def get(self, url, query, wait = 5):
+	def get(self, url, query = None, wait = None):
+
+		if query is None:
+			query = self.config['query']
+		if wait is None:
+			wait = self.config['wait']
+
 		self.driver.get(url)
 
 		apply_query = lambda driver, query: driver.find_element(by = By.XPATH, value = query).text.split('\n')

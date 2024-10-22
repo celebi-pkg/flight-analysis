@@ -2,17 +2,16 @@
   Written by Kaya Celebi, April 2023
 ****************************************************************************************************************************************************************/'''
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 from datetime import date, datetime, timedelta
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from google_flight_analysis.flight import *
+
+from src.google_flight_analysis.config import config
+# ------------------------------------------------------
+from src.google_flight_analysis.scrape.chrome_wrapper import ChromeDriverWrapper
+from src.google_flight_analysis.scrape.flight import *
 
 __all__ = ['Scrape', '_Scrape', 'ScrapeObjects']
 
@@ -32,17 +31,12 @@ def ScrapeObjects(objs, parsing_model = None, deep_copy = False):
 		objs = [objs]
 
 
-	chromedriver_autoinstaller.install() # check if chromedriver is installed correctly and on path
-	options = Options()
-	options.add_argument('--no-sandbox')
-	options.add_argument("--headless")
-	options.add_argument('--disable-dev-shm-usage')
-	driver = webdriver.Chrome(options = options)
-	driver.maximize_window()
+	driver = ChromeDriverWrapper()
 
 	# modifies the objects in-place
 	debug = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]
 	retry_debug = [obj._scrape_data(driver) for i, obj in enumerate(tqdm(objs, desc = "Retrying Failed Objects")) if debug[i] == -1]
+	
 	driver.quit()
 
 	if deep_copy:
@@ -411,7 +405,7 @@ class _Scrape:
 	def _get_results(url, date, driver, parsing_model):
 		results = None
 		try:
-			results = _Scrape._make_url_request(url, driver)
+			results = driver.get(url, query = ..., wait = ...) #_Scrape._make_url_request(url, driver)
 		except TimeoutException:
 			print(
 				'''TimeoutException, try again and check your internet connection!\n
@@ -444,20 +438,9 @@ class _Scrape:
 
 		return flights
 
-	@staticmethod
-	def _make_url_request(url, driver):
-		driver.get(url)
-
-		# Waiting and initial XPATH cleaning
-		WebDriverWait(driver, timeout = 10).until(lambda d: len(_Scrape._get_flight_elements(d)) > 100)
-		results = _Scrape._get_flight_elements(driver)
-
-		#driver.quit()
-
-		return results
 
 	@staticmethod
 	def _get_flight_elements(driver):
-		return driver.find_element(by = By.XPATH, value = '//body[@id = "yDmH0d"]').text.split('\n')
+		return driver.find_element(by = By.XPATH, value = ).text.split('\n')
 
 Scrape = _Scrape()
