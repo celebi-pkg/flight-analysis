@@ -19,6 +19,14 @@ chrome_driver = \
 				'query': '//div',
 				'query_lim': 0,
 				'wait' : 5
+			},
+			'debug': {
+				'options': [
+					'--no-sandbox'
+				],
+				'query': '//li',
+				'query_lim': 0,
+				'wait' : 5
 			}
 		}
 

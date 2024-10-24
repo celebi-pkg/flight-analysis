@@ -31,7 +31,7 @@ def ScrapeObjects(objs, parsing_model = None, deep_copy = False):
 		objs = [objs]
 
 
-	driver = ChromeDriverWrapper()
+	driver = ChromeDriverWrapper(config)
 
 	# modifies the objects in-place
 	debug = [obj._scrape_data(driver) for obj in tqdm(objs, desc="Scraping Objects")]

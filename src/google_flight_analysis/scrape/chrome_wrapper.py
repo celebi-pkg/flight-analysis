@@ -22,21 +22,25 @@ class ChromeDriverWrapper:
 	'''
 		query -- an xpath query
 	'''
-	def get(self, url, query = None, wait = None):
+	def get(self, url, query = None, wait = None, query_lim = None):
 
 		if query is None:
 			query = self.config['query']
 		if wait is None:
 			wait = self.config['wait']
+		if query_lim is None:
+			query_lim = self.config['query_lim']
 
 		self.driver.get(url)
 
 		apply_query = lambda driver, query: driver.find_element(by = By.XPATH, value = query).text.split('\n')
 
-		WebDriverWait(self.driver, timeout = wait).until(lambda driver: len(apply_query(driver, query)) > 100)
-
+		WebDriverWait(self.driver, timeout = wait).until(lambda driver: len(apply_query(driver, query)) > query_lim)
+		
 		return apply_query(self.driver, query)
 
 
 	def quit(self):
 		self.driver.quit()
+
+
