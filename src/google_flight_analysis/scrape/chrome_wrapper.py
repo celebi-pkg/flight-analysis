@@ -1,5 +1,7 @@
+import time
+# ------------------------------------------
 import chromedriver_autoinstaller
-
+# ------------------------------------------
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,8 +24,21 @@ class ChromeDriverWrapper:
 	'''
 		query -- an xpath query
 	'''
-	def get(self, url, query = None, wait = None, query_lim = None):
+	def get(self, url, query = None):
+		self.driver.get(url)
 
+		#if apply_query is None:
+		#	apply_query = lambda driver, query: driver.find_element(by = By.XPATH, value = query).text.split('\n')
+
+		#WebDriverWait(self.driver, timeout = wait).until(lambda driver: len(apply_query(driver, query)) > query_lim)
+		
+		#return apply_query(self.driver, query)
+
+
+	def instructions(self, manual):
+		...
+
+	def get_until(url, query = None, wait = None, query_lim = None):
 		if query is None:
 			query = self.config['query']
 		if wait is None:
@@ -31,13 +46,12 @@ class ChromeDriverWrapper:
 		if query_lim is None:
 			query_lim = self.config['query_lim']
 
-		self.driver.get(url)
 
-		apply_query = lambda driver, query: driver.find_element(by = By.XPATH, value = query).text.split('\n')
+	def find_element(self, query):
+		return self.driver.find_element(self.config['by'], query)
 
-		WebDriverWait(self.driver, timeout = wait).until(lambda driver: len(apply_query(driver, query)) > query_lim)
-		
-		return apply_query(self.driver, query)
+	def find_elements(self, query):
+		return self.driver.find_elements(self.config['by'], query)
 
 
 	def quit(self):
