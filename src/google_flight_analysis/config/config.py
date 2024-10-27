@@ -21,7 +21,7 @@ chrome_driver = \
 				],
 				'query': '//div',
 				'query_lim': 0,
-				'wait' : 10,
+				'wait' : 3,
 				'by': By.XPATH
 			},
 			'debug': {
@@ -87,7 +87,7 @@ instructions = \
 					'batches': \
 					[
 						[
-							('wait', 5),
+							('wait', 2),
 							('find_element', '//*[@id="yDmH0d"]/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[2]/div[2]/div/div[2]') # first_subquery
 						]
 					],
@@ -189,8 +189,8 @@ instructions = \
 					'batches': \
 					[
 						[
-							#('find_elements', './ul//li/div/div[2]/div/div[2]/div[1]/div[6]/div[1]/div[2]/span'),
-							('find_elements', './ul//li/div/div[2]/div/div[2]/div[1]/div[6]/div[1]/div/span'),
+							('find_elements', './ul//li/div/div[2]/div/div[2]/div[1]/div[6]/div[1]/div[2]/span'),
+							#('find_elements', './ul//li/div/div[2]/div/div[2]/div[1]/div[6]/div[1]/div/span'),
 							('text', None)
 						]
 					],

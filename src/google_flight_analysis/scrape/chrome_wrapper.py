@@ -1,13 +1,16 @@
 import time
+import logging
 from tqdm.notebook import tqdm
 # ------------------------------------------
 import chromedriver_autoinstaller
 # ------------------------------------------
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+
+logger = logging.getLogger(__name__)
 
 class ChromeDriverWrapper:
 
@@ -32,24 +35,20 @@ class ChromeDriverWrapper:
 	def instructions(self, manual, items):
 		for idx, batch in enumerate(manual['batches']):
 			curr = items
-			for instruction, *args in tqdm(batch, desc = f'Batch #{idx}'):
-				if type(curr) == list: # result of a previous find_elements
-					curr = [getattr(elem, instruction)(*args) for elem in curr]
-				else:
-					curr = getattr(curr, instruction)(*args)
+			for instruction, *args in batch:
+				try:
+					if type(curr) == list: # result of a previous find_elements
+						curr = [getattr(elem, instruction)(*args) for elem in curr]
+					else:
+						curr = getattr(curr, instruction)(*args)
+				except NoSuchElementException:
+					logger.debug(f'Element not found for {idx} | {instruction}, {args}')
+				except TimeoutException:
+					logger.debug(f'Timed out for {idx} | {instruction}, {args}')
+				except StaleElementReferenceException:
+					logger.debug('Stale Element, just rerun')
 
 		return curr
-
-	def get_until(query = None, wait = None, query_lim = None):
-		if query is None:
-			query = self.config['query']
-		if wait is None:
-			wait = self.config['wait']
-		if query_lim is None:
-			query_lim = self.config['query_lim']
-
-		#...
-		return
 
 	def assertion(self):
 		#...
@@ -113,6 +112,7 @@ class WebElementWrapper(ChromeDriverWrapper):
 		return [
 			WebElementWrapper(web_element = x, config = self.config)
 			for x in self.web_element.find_elements(self.config['by'], query)
+			if x.text != ''
 		]
 
 	# condition = lambda result, args: result == args...
