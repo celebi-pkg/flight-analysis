@@ -1,4 +1,4 @@
-import logging
+'''import logging
 from tqdm.notebook import tqdm
 # ------------------------------------------
 from src.google_flight_analysis.config import config
@@ -52,9 +52,6 @@ def scrape \
 def assertions(res):
 	return
 
-'''
-	Check that the fields all have the same length
-'''
 def check_output_lengths(res):
 	prev = None
 	for key in res:
@@ -66,3 +63,4 @@ def check_output_lengths(res):
 
 	
 
+'''

@@ -87,7 +87,7 @@ instructions = \
 					'batches': \
 					[
 						[
-							('wait', 2),
+							('wait', 20), # startup wait
 							('find_element', '//*[@id="yDmH0d"]/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[2]/div[2]/div/div[2]') # first_subquery
 						]
 					],

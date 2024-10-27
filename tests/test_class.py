@@ -7,6 +7,8 @@ import os
 #from src.google_flight_analysis.cache import *
 
 from src.google_flight_analysis.config import config
+from src.google_flight_analysis.scrape.chrome_wrapper import ChromeDriverWrapper
+
 
 '''
 	Create resilience test: run the code 3 times and check DBs the same
@@ -24,6 +26,9 @@ def func_config_chrome_driver_format():
 			if opt not in config.chrome_driver[x].keys():
 				return False
 	return True
+
+def func_get_example_com():
+
 
 def test_tautology():
 	assert 1 == 1, "Test 0 Failed"

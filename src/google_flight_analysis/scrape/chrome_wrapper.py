@@ -6,11 +6,12 @@ import chromedriver_autoinstaller
 # ------------------------------------------
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class ChromeDriverWrapper:
 
@@ -31,22 +32,35 @@ class ChromeDriverWrapper:
 	def get(self, url):
 		self.driver.get(url)
 
+	#'//*[@id="yDmH0d"]/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[2]/div[2]/div/div[2]'
+	#'./div[1]'
+	#'./ul/li[1]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/span/span[2]/span/span/span'
+
 	# the instruction manual is some config
 	def instructions(self, manual, items):
+		#logging.info('Starting instructions')
 		for idx, batch in enumerate(manual['batches']):
 			curr = items
 			for instruction, *args in batch:
-				try:
-					if type(curr) == list: # result of a previous find_elements
-						curr = [getattr(elem, instruction)(*args) for elem in curr]
-					else:
-						curr = getattr(curr, instruction)(*args)
-				except NoSuchElementException:
-					logger.debug(f'Element not found for {idx} | {instruction}, {args}')
-				except TimeoutException:
-					logger.debug(f'Timed out for {idx} | {instruction}, {args}')
-				except StaleElementReferenceException:
-					logger.debug('Stale Element, just rerun')
+				proceed = 0
+				while proceed < 3:
+					try:
+						#******---------------------******
+						if type(curr) == list: # result of a previous find_elements
+							curr = [getattr(elem, instruction)(*args) for elem in curr]
+						else:
+							curr = getattr(curr, instruction)(*args)
+						proceed = 3
+						#******---------------------******
+					except NoSuchElementException:
+						logger.error(f'Element not found for {idx} | {instruction}, {args}')
+						proceed  += 1
+					except TimeoutException:
+						logger.error(f'Timed out for {idx} | {instruction}, {args}')
+						proceed  += 1
+					except StaleElementReferenceException:
+						logger.error('Stale Element, running again')
+						proceed += 1
 
 		return curr
 
@@ -57,20 +71,27 @@ class ChromeDriverWrapper:
 	def wait(self, wait = None):
 		if wait is None:
 			wait = self.config['wait']
+		#logger.debug(f'Waiting for {wait} secs')
+		print(f'Waiting for {wait} secs')
 		time.sleep(wait)
 		return self
 
-	def click(self, *args):
-		self.driver.click()
-		return self
+
+	#def click(self, *args):
+	#	self.driver.click()
+	#	return self
 
 	def get_attribute(self, attr):
 		return self.driver.get_attribute(attr)
 
 	# this always outputs WebElementWrapper
 	def find_element(self, query):
+		#return WebElementWrapper(
+		#	web_element = self.driver.find_element(self.config['by'], query),
+		#	config = self.config
+		#)
 		return WebElementWrapper(
-			web_element = self.driver.find_element(self.config['by'], query),
+			web_element = WebDriverWait(self.driver, self.config['wait']).until(EC.presence_of_element_located((self.config['by'], query))),
 			config = self.config
 		)
 
