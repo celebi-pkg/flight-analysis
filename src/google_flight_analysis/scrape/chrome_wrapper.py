@@ -1,4 +1,5 @@
 import time
+from tqdm.notebook import tqdm
 # ------------------------------------------
 import chromedriver_autoinstaller
 # ------------------------------------------
@@ -24,21 +25,22 @@ class ChromeDriverWrapper:
 	'''
 		query -- an xpath query
 	'''
-	def get(self, url, query = None):
+	def get(self, url):
 		self.driver.get(url)
 
-		#if apply_query is None:
-		#	apply_query = lambda driver, query: driver.find_element(by = By.XPATH, value = query).text.split('\n')
+	# the instruction manual is some config
+	def instructions(self, manual, items):
+		for idx, batch in enumerate(manual['batches']):
+			curr = items
+			for instruction, *args in tqdm(batch, desc = f'Batch #{idx}'):
+				if type(curr) == list: # result of a previous find_elements
+					curr = [getattr(elem, instruction)(*args) for elem in curr]
+				else:
+					curr = getattr(curr, instruction)(*args)
 
-		#WebDriverWait(self.driver, timeout = wait).until(lambda driver: len(apply_query(driver, query)) > query_lim)
-		
-		#return apply_query(self.driver, query)
+		return curr
 
-
-	def instructions(self, manual):
-		...
-
-	def get_until(url, query = None, wait = None, query_lim = None):
+	def get_until(query = None, wait = None, query_lim = None):
 		if query is None:
 			query = self.config['query']
 		if wait is None:
@@ -46,15 +48,77 @@ class ChromeDriverWrapper:
 		if query_lim is None:
 			query_lim = self.config['query_lim']
 
+		#...
+		return
 
+	def assertion(self):
+		#...
+		return
+
+	def wait(self, wait = None):
+		if wait is None:
+			wait = self.config['wait']
+		time.sleep(wait)
+		return self
+
+	def click(self, *args):
+		self.driver.click()
+		return self
+
+	def get_attribute(self, attr):
+		return self.driver.get_attribute(attr)
+
+	# this always outputs WebElementWrapper
 	def find_element(self, query):
-		return self.driver.find_element(self.config['by'], query)
+		return WebElementWrapper(
+			web_element = self.driver.find_element(self.config['by'], query),
+			config = self.config
+		)
 
+	# this always outputs List[WebElementWrapper]
 	def find_elements(self, query):
-		return self.driver.find_elements(self.config['by'], query)
-
+		return [
+			WebElementWrapper(web_element = x, config = self.config)
+			for x in self.driver.find_elements(self.config['by'], query)
+		]
 
 	def quit(self):
 		self.driver.quit()
+
+class WebElementWrapper(ChromeDriverWrapper):
+
+	def __init__(self, web_element, config):
+		self.config = config
+		self.web_element = web_element
+
+	def click(self, *args):
+		self.web_element.click()
+		return self
+
+	def text(self, *args):
+		return self.web_element.text
+
+	def get_attribute(self, attr):
+		return self.web_element.get_attribute(attr)
+
+	# this always outputs WebElementWrapper
+	def find_element(self, query):
+		return WebElementWrapper(
+			web_element = self.web_element.find_element(self.config['by'], query),
+			config = self.config
+		)
+
+	# this always outputs List[WebElementWrapper]
+	def find_elements(self, query):
+		return [
+			WebElementWrapper(web_element = x, config = self.config)
+			for x in self.web_element.find_elements(self.config['by'], query)
+		]
+
+	# condition = lambda result, args: result == args...
+	def assertion(self, func, condition_func, *func_args, **condition_func_args):
+		assert condition_func(getattr(self.web_element, func)(*args), **condition_func_args)
+
+		return self
 
 
