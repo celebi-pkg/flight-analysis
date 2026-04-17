@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import quote
 
 import pandas as pd
@@ -76,7 +76,7 @@ class Scrape:
         self.trip_type = trip_type or TripType.ONE_WAY
         
         self._driver: Optional[ChromeDriver] = None
-        self._results: list[ScrapeResult] = []
+        self._results: List[ScrapeResult] = []
         self._df: Optional[pd.DataFrame] = None
     
     def _build_url(self) -> str:
@@ -106,7 +106,7 @@ class Scrape:
             logger.warning(f"Timeout waiting for content: {e}")
             return False
     
-    def _extract_flights(self, driver: ChromeDriver) -> list[ScrapeResult]:
+    def _extract_flights(self, driver: ChromeDriver) -> List[ScrapeResult]:
         """Extract flight data from page."""
         results = []
         
@@ -201,7 +201,7 @@ class Scrape:
             logger.debug(f"Error parsing card: {e}")
             return None
     
-    def _extract_fallback(self, driver: ChromeDriver) -> list[ScrapeResult]:
+    def _extract_fallback(self, driver: ChromeDriver) -> List[ScrapeResult]:
         """Fallback extraction using page text."""
         results = []
         
@@ -235,7 +235,7 @@ class Scrape:
         self,
         driver: Optional[ChromeDriver] = None,
         use_driver_context: bool = True,
-    ) -> list[ScrapeResult]:
+    ) -> List[ScrapeResult]:
         """Execute the scrape."""
         start_time = time.time()
         
@@ -254,7 +254,7 @@ class Scrape:
             logger.error(f"Scrape error: {e}")
             raise
     
-    def _execute(self, driver: ChromeDriver, start_time: float) -> list[ScrapeResult]:
+    def _execute(self, driver: ChromeDriver, start_time: float) -> List[ScrapeResult]:
         """Internal execute method."""
         url = self._build_url()
         logger.info(f"Scraping: {url}")
@@ -309,7 +309,7 @@ class Scrape:
         return self._df
     
     @property
-    def results(self) -> list[ScrapeResult]:
+    def results(self) -> List[ScrapeResult]:
         """Get raw results."""
         return self._results
     

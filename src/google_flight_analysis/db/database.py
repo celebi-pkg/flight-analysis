@@ -8,7 +8,7 @@ including session handling, migrations, and common operations.
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Generator, Optional, List, Dict
 import logging
 
 from sqlalchemy import create_engine, select, func
@@ -84,8 +84,8 @@ class Database:
     
     def get_or_create_route(
         self, origin: str, destination: str, trip_type: str = "one-way"
-    ) -> Route:
-        """Get existing route or create new one."""
+    ) -> int:
+        """Get existing route or create new one. Returns route ID."""
         with self.session() as sess:
             stmt = select(Route).where(
                 Route.origin == origin.upper(),
@@ -100,7 +100,7 @@ class Database:
                 )
                 sess.add(route)
                 sess.flush()
-            return route
+            return route.id
     
     def log_scrape(
         self,
@@ -110,8 +110,8 @@ class Database:
         success: bool,
         error_message: Optional[str] = None,
         duration_seconds: Optional[float] = None,
-    ) -> ScrapeLog:
-        """Log a scrape operation."""
+    ) -> int:
+        """Log a scrape operation. Returns log ID."""
         with self.session() as sess:
             log = ScrapeLog(
                 route_id=route_id,
@@ -124,13 +124,13 @@ class Database:
             )
             sess.add(log)
             sess.flush()
-            return log
+            return log.id
     
     def add_flights(
         self,
         route_id: int,
         scrape_log_id: int,
-        flights_data: list[dict],
+        flights_data: List[dict],
     ) -> int:
         """Add flights to database."""
         with self.session() as sess:
@@ -145,14 +145,33 @@ class Database:
                 count += 1
             return count
     
+    def _flight_to_dict(self, flight: Flight) -> dict:
+        """Convert Flight object to dict."""
+        return {
+            "id": flight.id,
+            "route_id": flight.route_id,
+            "scrape_log_id": flight.scrape_log_id,
+            "departure_datetime": flight.departure_datetime.isoformat() if flight.departure_datetime else None,
+            "arrival_datetime": flight.arrival_datetime.isoformat() if flight.arrival_datetime else None,
+            "departure_airport": flight.departure_airport,
+            "arrival_airport": flight.arrival_airport,
+            "airline": flight.airline,
+            "flight_number": flight.flight_number,
+            "duration_minutes": flight.duration_minutes,
+            "stops": flight.stops,
+            "price_cents": flight.price_cents,
+            "currency": flight.currency,
+            "emissions_kg": flight.emissions_kg,
+        }
+
     def get_flights(
         self,
         origin: str,
         destination: str,
         departure_date: Optional[str] = None,
         limit: int = 100,
-    ) -> list[Flight]:
-        """Get flights for a route."""
+    ) -> List[dict]:
+        """Get flights for a route as dicts."""
         with self.session() as sess:
             route = sess.scalar(select(Route).where(
                 Route.origin == origin.upper(),
@@ -165,7 +184,8 @@ class Database:
             if departure_date:
                 stmt = stmt.where(Flight.departure_datetime.startswith(departure_date))
             stmt = stmt.order_by(Flight.departure_datetime.desc()).limit(limit)
-            return list(sess.execute(stmt).scalars().all())
+            flights = sess.execute(stmt).scalars().all()
+            return [self._flight_to_dict(f) for f in flights]
     
     def get_latest_price(
         self, origin: str, destination: str, departure_date: str
@@ -191,7 +211,7 @@ class Database:
         origin: str,
         destination: str,
         days: int = 30,
-    ) -> list[dict]:
+    ) -> List[dict]:
         """Get price history for a route."""
         with self.session() as sess:
             route = sess.scalar(select(Route).where(
@@ -243,11 +263,22 @@ class Database:
                 config = ConfigValue(key=key, value=value, description=description)
                 sess.add(config)
     
-    def get_active_routes(self) -> list[Route]:
-        """Get all active routes."""
+    def _route_to_dict(self, route: Route) -> dict:
+        """Convert Route object to dict."""
+        return {
+            "id": route.id,
+            "origin": route.origin,
+            "destination": route.destination,
+            "trip_type": route.trip_type,
+            "is_active": route.is_active,
+        }
+
+    def get_active_routes(self) -> List[dict]:
+        """Get all active routes as dicts."""
         with self.session() as sess:
             stmt = select(Route).where(Route.is_active == True)
-            return list(sess.execute(stmt).scalars().all())
+            routes = sess.execute(stmt).scalars().all()
+            return [self._route_to_dict(r) for r in routes]
     
     def close(self) -> None:
         """Close the database connection."""

@@ -5,7 +5,7 @@ import tempfile
 import os
 from datetime import datetime
 
-from google_flight_analysis.db import Database, get_db, Flight, Route, ScrapeLog
+from google_flight_analysis.db import Database, get_db
 
 
 class TestDatabase:
@@ -23,46 +23,44 @@ class TestDatabase:
         db = Database(temp_db)
         db.initdb()
         
-        route = db.get_or_create_route("JFK", "LAX", "one-way")
+        route_id = db.get_or_create_route("JFK", "LAX", "one-way")
         
-        assert route.id is not None
-        assert route.origin == "JFK"
-        assert route.destination == "LAX"
+        assert route_id is not None
+        assert isinstance(route_id, int)
     
     def test_get_or_create_route_existing(self, temp_db):
         """Test getting existing route."""
         db = Database(temp_db)
         db.initdb()
         
-        route1 = db.get_or_create_route("JFK", "LAX")
-        route2 = db.get_or_create_route("JFK", "LAX")
+        route_id1 = db.get_or_create_route("JFK", "LAX")
+        route_id2 = db.get_or_create_route("JFK", "LAX")
         
-        assert route1.id == route2.id
+        assert route_id1 == route_id2
     
     def test_log_scrape(self, temp_db):
         """Test scrape logging."""
         db = Database(temp_db)
         db.initdb()
         
-        route = db.get_or_create_route("JFK", "LAX")
-        log = db.log_scrape(
-            route_id=route.id,
+        route_id = db.get_or_create_route("JFK", "LAX")
+        log_id = db.log_scrape(
+            route_id=route_id,
             num_flights_found=10,
             num_flights_stored=8,
             success=True,
         )
         
-        assert log.id is not None
-        assert log.num_flights_found == 10
-        assert log.success is True
+        assert log_id is not None
+        assert isinstance(log_id, int)
     
     def test_add_flights(self, temp_db):
         """Test adding flights."""
         db = Database(temp_db)
         db.initdb()
         
-        route = db.get_or_create_route("JFK", "LAX")
-        log = db.log_scrape(route_id=route.id, num_flights_found=5, num_flights_stored=5, success=True)
+        route_id = db.get_or_create_route("JFK", "LAX")
+        log_id = db.log_scrape(route_id=route_id, num_flights_found=5, num_flights_stored=5, success=True)
         
         flights_data = [
             {
@@ -76,7 +74,7 @@ class TestDatabase:
             },
         ]
         
-        count = db.add_flights(route.id, log.id, flights_data)
+        count = db.add_flights(route_id, log_id, flights_data)
         
         assert count == 1
     
@@ -85,8 +83,8 @@ class TestDatabase:
         db = Database(temp_db)
         db.initdb()
         
-        route = db.get_or_create_route("JFK", "LAX")
-        log = db.log_scrape(route_id=route.id, num_flights_found=5, num_flights_stored=5, success=True)
+        route_id = db.get_or_create_route("JFK", "LAX")
+        log_id = db.log_scrape(route_id=route_id, num_flights_found=5, num_flights_stored=5, success=True)
         
         flights_data = [
             {
@@ -100,20 +98,20 @@ class TestDatabase:
             },
         ]
         
-        db.add_flights(route.id, log.id, flights_data)
+        db.add_flights(route_id, log_id, flights_data)
         
         flights = db.get_flights("JFK", "LAX")
         
         assert len(flights) == 1
-        assert flights[0].departure_airport == "JFK"
+        assert flights[0]["departure_airport"] == "JFK"
     
     def test_get_price_history(self, temp_db):
         """Test price history."""
         db = Database(temp_db)
         db.initdb()
         
-        route = db.get_or_create_route("JFK", "LAX")
-        log = db.log_scrape(route_id=route.id, num_flights_found=2, num_flights_stored=2, success=True)
+        route_id = db.get_or_create_route("JFK", "LAX")
+        log_id = db.log_scrape(route_id=route_id, num_flights_found=2, num_flights_stored=2, success=True)
         
         flights_data = [
             {
@@ -136,7 +134,7 @@ class TestDatabase:
             },
         ]
         
-        db.add_flights(route.id, log.id, flights_data)
+        db.add_flights(route_id, log_id, flights_data)
         
         history = db.get_price_history("JFK", "LAX", days=30)
         

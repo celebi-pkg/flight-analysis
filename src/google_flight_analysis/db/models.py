@@ -5,9 +5,9 @@ Defines SQLAlchemy models for flight data, routes, and scrape logs.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import (
-    String, Integer, Float, DateTime, Boolean, Index, ForeignKey, Enum as SQLEnum,
+    String, Integer, Float, DateTime, Boolean, Index, ForeignKey,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import enum
@@ -30,33 +30,30 @@ class Flight(Base):
     """Flight data model."""
     __tablename__ = "flights"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    route_id: Mapped[int] = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
-    scrape_log_id: Mapped[int] = mapped_column(Integer, ForeignKey("scrape_logs.id"), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    route_id = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
+    scrape_log_id = mapped_column(Integer, ForeignKey("scrape_logs.id"), nullable=False)
     
-    departure_datetime: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    arrival_datetime: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    departure_datetime = mapped_column(DateTime, nullable=False)
+    arrival_datetime = mapped_column(DateTime, nullable=True)
     
-    departure_airport: Mapped[str] = mapped_column(String(3), nullable=False)
-    arrival_airport: Mapped[str] = mapped_column(String(3), nullable=False)
+    departure_airport = mapped_column(String(3), nullable=False)
+    arrival_airport = mapped_column(String(3), nullable=False)
     
-    airline: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
-    flight_number: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    airline = mapped_column(String(10), nullable=True)
+    flight_number = mapped_column(String(10), nullable=True)
     
-    duration_minutes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    stops: Mapped[int] = mapped_column(Integer, default=0)
+    duration_minutes = mapped_column(Integer, nullable=True)
+    stops = mapped_column(Integer, default=0)
     
-    price_cents: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    currency: Mapped[str] = mapped_column(String(3), default="USD")
+    price_cents = mapped_column(Integer, nullable=True)
+    currency = mapped_column(String(3), default="USD")
     
-    emissions_kg: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    emissions_kg = mapped_column(Integer, nullable=True)
     
-    raw_data: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    raw_data = mapped_column(String(1000), nullable=True)
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    route: Mapped["Route"] = relationship("Route", back_populates="flights")
-    scrape_log: Mapped["ScrapeLog"] = relationship("ScrapeLog", back_populates="flights")
+    created_at = mapped_column(DateTime, default=datetime.utcnow)
 
     __table_args__ = (
         Index("idx_flight_route_scrape", "route_id", "scrape_log_id"),
@@ -69,24 +66,17 @@ class Route(Base):
     """Route model."""
     __tablename__ = "routes"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    origin: Mapped[str] = mapped_column(String(3), nullable=False)
-    destination: Mapped[str] = mapped_column(String(3), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    origin = mapped_column(String(3), nullable=False)
+    destination = mapped_column(String(3), nullable=False)
     
-    trip_type: Mapped[str] = mapped_column(
-        SQLEnum(TripType, native_enum=False),
-        default=TripType.ONE_WAY.value
-    )
+    trip_type = mapped_column(String(20), default="one-way")
     
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_active = mapped_column(Boolean, default=True)
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
+    created_at = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    flights: Mapped[list["Flight"]] = relationship(
-        "Flight", back_populates="route", cascade="all, delete-orphan"
     )
 
     __table_args__ = (
@@ -98,25 +88,20 @@ class ScrapeLog(Base):
     """Scrape log model - tracks when scraping occurred."""
     __tablename__ = "scrape_logs"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    route_id: Mapped[int] = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    route_id = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
     
-    scraped_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    scraped_at = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     
-    num_flights_found: Mapped[int] = mapped_column(Integer, default=0)
-    num_flights_stored: Mapped[int] = mapped_column(Integer, default=0)
+    num_flights_found = mapped_column(Integer, default=0)
+    num_flights_stored = mapped_column(Integer, default=0)
     
-    success: Mapped[bool] = mapped_column(Boolean, default=False)
-    error_message: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    success = mapped_column(Boolean, default=False)
+    error_message = mapped_column(String(500), nullable=True)
     
-    duration_seconds: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    duration_seconds = mapped_column(Float, nullable=True)
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    route: Mapped["Route"] = relationship("Route", back_populates="scrape_logs")
-    flights: Mapped[list["Flight"]] = relationship(
-        "Flight", back_populates="scrape_log", cascade="all, delete-orphan"
-    )
+    created_at = mapped_column(DateTime, default=datetime.utcnow)
 
     __table_args__ = (
         Index("idx_scrape_log_route_time", "route_id", "scraped_at"),
@@ -127,10 +112,10 @@ class ConfigValue(Base):
     """Key-value store for configuration."""
     __tablename__ = "config_values"
 
-    key: Mapped[str] = mapped_column(String(100), primary_key=True)
-    value: Mapped[str] = mapped_column(String(500), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(
+    key = mapped_column(String(100), primary_key=True)
+    value = mapped_column(String(500), nullable=False)
+    description = mapped_column(String(500), nullable=True)
+    updated_at = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
@@ -139,21 +124,21 @@ class SubscriptionRoute(Base):
     """Subscription model for routes to track."""
     __tablename__ = "subscription_routes"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    route_id: Mapped[int] = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    route_id = mapped_column(Integer, ForeignKey("routes.id"), nullable=False)
     
-    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    email = mapped_column(String(255), nullable=False)
     
-    departure_date_start: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
-    departure_date_end: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    departure_date_start = mapped_column(String(10), nullable=True)
+    departure_date_end = mapped_column(String(10), nullable=True)
     
-    max_price_cents: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    max_price_cents = mapped_column(Integer, nullable=True)
     
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_active = mapped_column(Boolean, default=True)
     
-    notify_on_drop: Mapped[bool] = mapped_column(Boolean, default=True)
+    notify_on_drop = mapped_column(Boolean, default=True)
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
+    created_at = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
