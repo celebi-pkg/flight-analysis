@@ -32,10 +32,6 @@ class ChromeDriverWrapper:
 	def get(self, url):
 		self.driver.get(url)
 
-	#'//*[@id="yDmH0d"]/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[2]/div[2]/div/div[2]'
-	#'./div[1]'
-	#'./ul/li[1]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/span/span[2]/span/span/span'
-
 	# the instruction manual is some config
 	def instructions(self, manual, items):
 		#logging.info('Starting instructions')
@@ -86,10 +82,6 @@ class ChromeDriverWrapper:
 
 	# this always outputs WebElementWrapper
 	def find_element(self, query):
-		#return WebElementWrapper(
-		#	web_element = self.driver.find_element(self.config['by'], query),
-		#	config = self.config
-		#)
 		return WebElementWrapper(
 			web_element = WebDriverWait(self.driver, self.config['wait']).until(EC.presence_of_element_located((self.config['by'], query))),
 			config = self.config
