@@ -6,7 +6,7 @@ flight data scraped from Google Flights.
 """
 
 from google_flight_analysis.db.database import Database, get_db
-from google_flight_analysis.db.models import Flight, Route, ScrapeLog
+from google_flight_analysis.db.models import Flight, Route, ScrapeLog, ConfigValue
 
 __all__ = [
     "Database",
@@ -14,4 +14,5 @@ __all__ = [
     "Flight",
     "Route",
     "ScrapeLog",
+    "ConfigValue",
 ]

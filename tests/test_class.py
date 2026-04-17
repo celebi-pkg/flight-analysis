@@ -9,7 +9,6 @@ import os
 from src.google_flight_analysis.config import config
 from src.google_flight_analysis.scrape.chrome_wrapper import ChromeDriverWrapper
 
-
 '''
 	Create resilience test: run the code 3 times and check DBs the same
 '''
