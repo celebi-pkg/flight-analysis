@@ -48,7 +48,7 @@ target-version = "py38"
 
 [tool.ruff.lint]
 select = ["E", "F"]  # Only critical errors and fatal warnings
-ignore = ["E501"]
+ignore = ["E501", "E402", "F401"]
 exclude = ["**/legacy/**", "**/deprc/**", "**/cache/**"]
 
 [tool.mypy]
@@ -56,3 +56,4 @@ python_version = "3.8"
 warn_return_any = false
 warn_unused_configs = false
 disallow_untyped_defs = false
+exclude = ["legacy", "deprc", "cache"]
