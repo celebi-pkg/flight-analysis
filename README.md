@@ -1,146 +1,134 @@
-[![kcelebi](https://circleci.com/gh/celebi-pkg/flight-analysis.svg?style=svg)](https://circleci.com/gh/celebi-pkg/flight-analysis)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Live on PyPI](https://img.shields.io/badge/PyPI-1.2.0-brightgreen)](https://pypi.org/project/google-flight-analysis/)
-[![TestPyPI](https://img.shields.io/badge/PyPI-1.1.1--alpha.11-blue)](https://test.pypi.org/project/google-flight-analysis/1.1.1a11/)
-
 # Flight Analysis
 
-This project provides tools and models for users to analyze, forecast, and collect data regarding flights and prices. There are currently many features in initial stages and in development. The current features (as of 5/25/2023) are:
+[![PyPI Version](https://img.shields.io/pypi/v/google-flight-analysis)](https://pypi.org/project/google-flight-analysis/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/google-flight-analysis)](https://pypi.org/project/google-flight-analysis/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/celebi-pkg/flight-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/celebi-pkg/flight-analysis/actions)
 
-- Detailed scraping and querying tools for Google Flights
-- Ability to store data locally or to SQL tables
-- Base analytical tools/methods for price forecasting/summary
+A Python package for scraping flight data from Google Flights and analyzing flight prices.
 
-The features in development are:
+## Features
 
-- Models to demonstrate ML techniques on forecasting
-- Querying of advanced features
-- API for access to previously collected data
+- **Scrape flight data** from Google Flights (round-trip, one-way, multi-city)
+- **Store in SQLite** database for historical analysis
+- **CLI interface** for agents and automation
+- **Price history** tracking and analysis
+- **Scheduled scraping** via GitHub Actions
 
-## Table of Contents
-- [Overview](#Overview)
-- [Usage](#usage)
-- [Updates & New Features](#updates-&-new-features)
-- [Real Usage](#real-usage) 😄
+## Installation
 
+```bash
+pip install google-flight-analysis
+```
 
-## Overview
+Or for development:
 
-Flight price calculation can either use newly scraped data (scrapes upon running it) or cached data that reports a price-change confidence determined by a trained model. Currently, many features of this application are in development.
+```bash
+git clone https://github.com/celebi-pkg/flight-analysis
+cd flight-analysis
+pip install -e .
+```
 
-## Usage
+## Requirements
 
-The web scraping tool is currently functional only for scraping round trip flights for a given origin, destination, and date range. It can be easily used in a script or a jupyter notebook.
+- Python 3.8+
+- Chrome/Chromium browser
+- ChromeDriver (auto-installed)
 
-Note that the following packages are **absolutely required** as dependencies:
-- tqdm
-- selenium **(make sure to update your [ChromeDriver](https://chromedriver.chromium.org)!)**
-- pandas
-- numpy
+## Quick Start
 
-You can easily install this by running either installing the Python package `google-flight-analysis`:
+### CLI Usage
 
-	pip install google-flight-analysis
+```bash
+# Get current price for a route
+flight-cli price JFK LAX -d 2026-06-01
 
-or forking/cloning this repository. Upon doing so, make sure to install the dependencies and update ChromeDriver to match your Google Chrome version.
+# Scrape and store flight data
+flight-cli scrape JFK LAX -d 2026-06-01
 
-	pip install -r requirements.txt
+# Database operations
+flight-cli db init
+flight-cli db routes
+flight-cli db history JFK LAX --days 30
+```
 
+### Python API
 
-The main scraping function that makes up the backbone of most other functionalities is `Scrape()`. It serves also as a data object, preserving the flight information as well as meta-data from your query. For Python package users, import as follows:
+```python
+from google_flight_analysis import scrape, get_db
 
-	from google_flight_analysis.scrape import *
+# Scrape flights
+result = scrape("JFK", "LAX", "2026-06-01")
+print(result.data)  # pandas DataFrame
 
-For GitHub repository cloners, import as follows from the root of the repository:
+# Save to database
+result.save_to_db()
 
-	from src.google_flight_analysis.scrape import *
-	#---OR---#
-	import sys
-	sys.path.append('src/google_flight_analysis')
-	from scrape import *
+# Query price history
+db = get_db()
+history = db.get_price_history("JFK", "LAX", days=30)
+```
 
+### Available Commands
 
-Here is some quick starter code to accomplish the basic tasks. Find more in the [documentation](https://kcelebi.github.io/flight-analysis/).
+| Command | Description |
+|---------|-------------|
+| `price` | Get current flight prices |
+| `scrape` | Scrape and store flight data |
+| `db` | Database operations (init, info, routes, history) |
+| `analyze` | Analyze prices, find best buy day |
+| `recommend` | Recommend best flight option |
 
-	# Keep the dates in format YYYY-mm-dd
-	result = Scrape('JFK', 'IST', '2023-07-20', '2023-08-20') # obtain our scrape object, represents out query
-	result.type # This is in a round-trip format
-	result.origin # ['JFK', 'IST']
-	result.dest # ['IST', 'JFK']
-	result.dates # ['2023-07-20', '2023-08-20']
-	print(result) # get unqueried str representation
+### Options
 
-A `Scrape` object represents a Google Flights query to be run. It maintains flights as a sequence of one or more one-way flights which have a origin, destination, and flight date. The above object for a round-trip flight from JFK to IST is a sequence of JFK --> IST, then IST --> JFK. We can obtain the data as follows:
+- `--json` - JSON output for agents
+- `--date`, `-d` - Departure date (YYYY-MM-DD)
+- `--return-date`, `-r` - Return date for round-trip
+- `--trip-type` - one-way or round-trip
 
-	ScrapeObjects(result) # runs selenium through ChromeDriver, modifies results in-place
-	result.data # returns pandas DF
-	print(result) # get queried representation of result
+## Configuration
 
-You can also scrape for one-way trips:
+Configuration is managed via environment variables or Python:
 
-	results = Scrape('JFK', 'IST', '2023-08-20')
-	ScrapeObjects(result)
-	result.data #see data
+```python
+from google_flight_analysis import config
 
-You can also scrape chain-trips, which are defined as a sequence of one-way flights that have no direct relation to each other, other than being in chronological order. 
+config.chrome.wait = 15  # seconds
+config.db.path = "/path/to/flights.db"
+```
 
-	# chain-trip format: origin, dest, date, origin, dest, date, ...
-	result = Scrape('JFK', 'IST', '2023-08-20', 'RDU', 'LGA', '2023-12-25', 'EWR', 'SFO', '2024-01-20')
-	result.type # chain-trip
-	ScrapeObjects(result)
-	result.data # see data
+Environment variables:
+- `FLIGHT_DB_PATH` - Database path
+- `FLIGHT_CACHE_DIR` - Cache directory
 
-You can also scrape perfect-chains, which are defined as a sequence of one-way flights such that the destination of the previous flight is the origin of the next and the origin of the chain is the final destination of the chain (a cycle).
+## Architecture
 
-	# perfect-chain format: origin, date, origin, date, ..., first_origin
-	result = Scrape("JFK", "2023-09-20", "IST", "2023-09-25", "CDG", "2023-10-10", "LHR", "2023-11-01", "JFK")
-	result.type # perfect-chain
-	ScrapeObjects(result)
-	result.data # see data
+```
+google_flight_analysis/
+├── scrape/          # Scraping logic
+│   ├── driver.py    # ChromeDriver wrapper
+│   └── scrape.py   # Scrape class
+├── db/             # Database
+│   ├── models.py   # SQLAlchemy models
+│   └── database.py # Database class
+├── cli/             # CLI interface
+├── legacy/          # Legacy components (fallback)
+└── config.py       # Configuration
+```
 
-You can read more about the different type of trips in the documentation. Scrape objects can be added to one another to create larger queries. This is under the conditions:
+## Testing
 
-1. The objects being added are the same type of trip (one-way, round-trip, etc)
-2. The objects being added are either both unqueried or both queried
+```bash
+pytest tests/ -v
+```
 
-## Updates & New Features
+## Contributing
 
-Performing a complete revamp of this package, including new addition to PyPI. Documentation is being updated frequently, contact for any questions.
+1. Fork the repository
+2. Create a feature branch
+3. Make changes and add tests
+4. Submit a PR
 
+## License
 
-<!--
-## Cache Data
-
-The caching system for this application is mainly designed to make the loading of data more efficient. For the moment, this component of the application hasn't been designed well for the public to easily use so I would suggest that most people leave it alone, or fork the repository and modify some of the functions to create folders in the destinations that they would prefer. The key caching functions are:
-
-- `cache_data`
-- `load_cached`
-- `iterative_caching`
-- `clean_cache`
-- `cache_condition`
-- `check_cached`
-
-All of these functions are clearly documented in the `scraping.py` file.
--->
-<!--## To Do
-
-- [x] Scrape data and clean it
-- [x] Testing for scraping
-- [x] Add scraping docs
-- [ ] Split Airlines
-- [ ] Add day of week as a feature
-- [ ] Support for Day of booking!! ("Delayed by x hr")
-- [ ] Detail most common airports and automatically cache
-- [ ] Algorithm to check over multiple days and return summary
-- [x] Determine caching method: wait for request and cache? periodically cache?
-- [ ] Model for observing change in flight price
-	- Predict how much it'll maybe change
-- [ ] UI for showing flights that are 'perfect' to constraint / flights that are close to constraints, etc
-- [ ] Caching/storing data, uses predictive model to estimate how good this is
-
--->
-## Real Usage
-
-Here are some great flights I was able to find and actually booked when planning my travel/vacations:
-
-- NYC ➡️ AMS (May 9), AMS ➡️ IST (May 12), IST ➡️ NYC (May 23) | Trip Total: $611 as of March 7, 2022
+MIT License - see LICENSE file.

@@ -1,0 +1,2 @@
+[console_scripts]
+flight-cli = google_flight_analysis.cli.main:main

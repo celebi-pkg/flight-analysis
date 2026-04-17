@@ -152,7 +152,10 @@ class Flight:
 			self._time_leave = self._times[0]
 			self._time_arrive = self._times[1]
 
-	def _parse_args(self, args):
+	def _parse_args(self, *args):
+		#
+		# if self.parse_model is None
+		# .//.
 		for arg in args:
 			self._classify_arg(arg)
 

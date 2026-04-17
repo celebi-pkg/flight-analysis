@@ -22,9 +22,11 @@ class _CacheControl:
 	'''
 	def __call__(self, *args):
 		self.directory, self.access = _CacheControl._check_dir(args[0])
-		for obj in tqdm(args[1:-1], desc = "Caching Data"):
+		if type(args[1]) is list:
+			args = [args[0], *args[1]]
+		for obj in tqdm(args[1:], desc = "Caching Data"):
 			if _CacheControl._check_scrape(obj):
-				self.cache(obj, args[-1])
+				self.cache(obj)
 
 
 	def __str__(self):
@@ -33,8 +35,13 @@ class _CacheControl:
 	def __repr__(self):
 		return "<Function to store scraped data: CacheControl>"
 
+	# db option is going to be deprecated and always tru
 	def cache(self, obj, db = True):
-		fname = self.directory + _CacheControl._get_file_name(obj.origin, obj.dest, access = False)
+		'''
+			Needs to be updated to match Scrape object changes
+		'''
+		#fname = self.directory + _CacheControl._get_file_name(obj.origin, obj.dest, access = False)
+		fname = self.directory if db else None
 		access = self.access + _CacheControl._get_file_name(obj.origin, obj.dest, access = True)
 		df = obj.data
 		current_access = df['Access Date'].values[0]

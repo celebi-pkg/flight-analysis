@@ -1,7 +1,6 @@
-"""Tests package for google-flight-analysis."""
+"""Pytest configuration and fixtures."""
 
 import pytest
-from pathlib import Path
 import tempfile
 import os
 
@@ -14,7 +13,11 @@ def temp_db():
     
     yield db_path
     
-    os.unlink(db_path)
+    if os.path.exists(db_path):
+        try:
+            os.unlink(db_path)
+        except:
+            pass
 
 
 @pytest.fixture
