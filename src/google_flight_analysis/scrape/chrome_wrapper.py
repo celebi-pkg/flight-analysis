@@ -137,6 +137,6 @@ class WebElementWrapper(ChromeDriverWrapper):
 
     # condition = lambda result, args: result == args...
     def assertion(self, func, condition_func, *func_args, **condition_func_args):
-        assert condition_func(getattr(self.web_element, func)(*args), **condition_func_args)
+        assert condition_func(getattr(self.web_element, func)(*func_args), **condition_func_args)
 
         return self
